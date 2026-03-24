@@ -1,4 +1,894 @@
-<html>
-<h1>Helli</h1>
+Here’s a simple, clean robotics team website you can copy‑paste into a index.html file on GitHub:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboRangers Robotics Team</title>
+  <style>
+    :root {
+      --primary: #0b7285;
+      --primary-dark: #074554;
+      --accent: #ffd43b;
+      --bg: #0b1020;
+      --card: #111827;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(2, 6, 23, 0.85);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 1.25rem;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 2.5rem auto 2rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 32rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.98rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 0.6rem 1.3rem;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s ease, transform 0.1s ease,
+        box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 18px 40px rgba(8, 47, 73, 0.7);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 50px rgba(8, 47, 73, 0.9);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hero-meta strong {
+      color: var(--text);
+      font-size: 1rem;
+      display: block;
+    }
+
+    .hero-visual {
+      position: relative;
+    }
+
+    .robot-card {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 70%);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .robot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .robot-part {
+      height: 70px;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, #0f172a 0, #020617 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 0.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .robot-part::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 60%);
+      opacity: 0.7;
+      mix-blend-mode: screen;
+    }
+
+    .robot-part span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .robot-status {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.12);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4ade80;
+    }
+
+    .glow-orbit {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+      top: -40px;
+      right: -60px;
+      opacity: 0.6;
+    }
+
+    .glow-orbit::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--accent);
+      top: 10%;
+      left: 15%;
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.9);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      margin-top: 3rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 36rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.7);
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+    }
+
+    .timeline {
+      border-left: 2px solid rgba(148, 163, 184, 0.4);
+      margin-top: 1rem;
+      padding-left: 1.25rem;
+    }
+
+    .timeline-item {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -1.4rem;
+      top: 0.25rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.2);
+    }
+
+    .timeline-item h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-item span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .timeline-item p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .member {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 0.9rem;
+      padding: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      text-align: left;
+    }
+
+    .member-role {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .member-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .member-focus {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    form {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.4);
+    }
+
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.3);
+      margin-top: 3rem;
+      padding: 1.25rem 1.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hero-visual {
+        order: -1;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .team-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .contact-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        display: none;
+      }
+
+      .hero {
+        margin-top: 1.5rem;
+      }
+
+      .grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .team-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="logo">
+        <div class="logo-icon">R</div>
+        <span>RoboRangers</span>
+      </div>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#robot">Our Robot</a>
+        <a href="#season">Season</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>High school robotics • FRC style team</span>
+      </div>
+      <h1>
+        Building <span>robots</span>, skills, and futures—one season at a time.
+      </h1>
+      <p>
+        RoboRangers is a student‑driven robotics team focused on engineering, coding,
+        and community outreach. We design, build, and compete with industrial‑style
+        robots while learning real‑world STEM and leadership skills.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">
+          Join the team
+          <span>→</span>
+        </a>
+        <a href="#robot" class="btn btn-outline">
+          View our 2025 robot
+        </a>
+      </div>
+      <div class="hero-meta">
+        <div>
+          <strong>25+</strong>
+          active student members
+        </div>
+        <div>
+          <strong>5</strong>
+          dedicated mentors
+        </div>
+        <div>
+          <strong>8</strong>
+          seasons of competition
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="robot-card">
+        <h3 style="font-size: 0.95rem; margin-bottom: 0.25rem;">
+          2025 Competition Robot: “Astra”
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--muted);">
+          West‑coast drive, dual‑arm intake, and vision‑guided scoring.
+        </p>
+
+        <div class="robot-grid">
+          <div class="robot-part">
+            <span>Vision<br />Tracking</span>
+          </div>
+          <div class="robot-part">
+            <span>Arm &amp;<br />Elevator</span>
+          </div>
+          <div class="robot-part">
+            <span>Drivetrain<br />Control</span>
+          </div>
+          <div class="robot-part">
+            <span>Autonomous<br />Pathing</span>
+          </div>
+          <div class="robot-part">
+            <span>On‑board<br />Diagnostics</span>
+          </div>
+          <div class="robot-part">
+            <span>LED<br />Feedback</span>
+          </div>
+        </div>
+
+        <div class="robot-status">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span>Competition ready</span>
+          </div>
+          <span>Avg cycle time: 7.2s</span>
+        </div>
+
+        <div class="glow-orbit"></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="about">
+      <h2>About our robotics team</h2>
+      <p class="section-intro">
+        We’re a student‑led robotics team that designs, builds, and programs a new
+        competition robot every season. Along the way, we learn engineering,
+        software development, project management, and how to work as a tight‑knit
+        team under real deadlines.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Engineering &amp; build</h3>
+          <p>
+            From CAD to manufacturing, students own the full mechanical design
+            process—iterating quickly and learning from every prototype.
+          </p>
+          <div class="tag-row">
+            <span class="tag">CAD</span>
+            <span class="tag">Manufacturing</span>
+            <span class="tag">Assembly</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Programming &amp; control</h3>
+          <p>
+            We write robot code for autonomous and tele‑op modes, using sensors,
+            vision, and control algorithms to make the robot smart and reliable.
+          </p>
+          <div class="tag-row">
+            <span class="tag">Java / C++</span>
+            <span class="tag">Vision</span>
+            <span class="tag">Path planning</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Outreach &amp; impact</h3>
+          <p>
+            Beyond competition, we mentor younger students, run demos, and share
+            robotics with our local community and schools.
+          </p>
+          <div class="tag-row">
+            <span class="tag">STEM nights</span>
+            <span class="tag">Workshops</span>
+            <span class="tag">Mentoring</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="robot">
+      <h2>Our 2025 robot: “Astra”</h2>
+      <p class="section-intro">
+        Every season starts with a blank page and a new game challenge. “Astra”
+        was designed to be fast, consistent, and easy for drivers to control
+        under pressure.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Drive base</h3>
+          <p>
+            6‑wheel west‑coast drive with high‑traction wheels and a low center of
+            gravity for stability and quick turns.
+          </p>
+          <ul style="font-size: 0.85rem; color: var(--muted); margin-left: 1rem;">
+            <li>Geared for speed and pushing power</li>
+            <li>Closed‑loop velocity control</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Scoring mechanism</h3>
+          <p>
+            Dual‑arm intake and elevator system designed for fast game‑piece
+            collection and precise placement at multiple heights.
+          </p>
+          <ul style="font-size: 0.85rem; color: var(--muted); margin-left: 1rem;">
+            <li>Sensor‑based alignment</li>
+            <li>Preset scoring positions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Software &amp; vision</h3>
+          <p>
+            Camera‑based vision and autonomous routines help the robot line up,
+            score, and navigate the field with minimal driver effort.
+          </p>
+          <ul style="font-size: 0.85rem; color: var(--muted); margin-left: 1rem;">
+            <li>AprilTag / target tracking</li>
+            <li>Multi‑path autonomous modes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="season">
+      <h2>Season highlights</h2>
+      <p class="section-intro">
+        Our season is more than just competition days—it’s months of design,
+        testing, and teamwork. Here’s what a typical year looks like.
+      </p>
+
+      <div class="card">
+        <div class="timeline">
+          <div class="timeline-item">
+            <h4>Kickoff &amp; strategy</h4>
+            <span>January</span>
+            <p>
+              We study the new game, brainstorm strategies, and define robot
+              priorities before touching any tools.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h4>Design &amp; prototyping</h4>
+            <span>January – February</span>
+            <p>
+              Subteams prototype mechanisms, test ideas, and finalize the robot
+              design in CAD.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h4>Build &amp; programming</h4>
+            <span>February – March</span>
+            <p>
+              We manufacture parts, assemble the robot, and develop autonomous and
+              tele‑op code.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h4>Competition &amp; outreach</h4>
+            <span>March – April</span>
+            <p>
+              We compete at regional events, iterate between matches, and share
+              our work with the community.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="team">
+      <h2>Meet the team</h2>
+      <p class="section-intro">
+        Our team is organized into subgroups so everyone can focus on what they
+        love—while still collaborating on one shared robot.
+      </p>
+
+      <div class="team-grid">
+        <div class="member">
+          <div class="member-role">Team captain</div>
+          <div class="member-name">Alex Rivera</div>
+          <div class="member-focus">
+            Coordinates subteams, strategy, and communication with mentors.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Mechanical lead</div>
+          <div class="member-name">Jordan Lee</div>
+          <div class="member-focus">
+            Oversees robot design, CAD, and build quality.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Programming lead</div>
+          <div class="member-name">Sam Patel</div>
+          <div class="member-focus">
+            Manages robot code, vision, and autonomous routines.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Electrical lead</div>
+          <div class="member-name">Taylor Chen</div>
+          <div class="member-focus">
+            Handles wiring, sensors, and on‑board electronics.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Drive coach</div>
+          <div class="member-name">Morgan Diaz</div>
+          <div class="member-focus">
+            Works with drivers and operators during matches.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Outreach lead</div>
+          <div class="member-name">Riley Johnson</div>
+          <div class="member-focus">
+            Plans demos, school events, and community partnerships.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Media &amp; branding</div>
+          <div class="member-name">Casey Nguyen</div>
+          <div class="member-focus">
+            Runs social media, photos, and team branding.
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-role">Mentor</div>
+          <div class="member-name">Coach Martinez</div>
+          <div class="member-focus">
+            Guides students in engineering, safety, and teamwork.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>Contact &amp; join us</h2>
+      <p class="section-intro">
+        Want to join the team, sponsor us, or invite us to an event? Send us a
+        message and we’ll get back to you.
+      </p>
+
+      <div class="contact-grid">
+        <div class="card">
+          <form>
+            <div>
+              <label for="name">Name</label>
+              <input id="name" type="text" placeholder="Your name" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div>
+              <label for="type">I’m interested in</label>
+              <input
+                id="type"
+                type="text"
+                placeholder="Joining, sponsoring, event, etc."
+              />
+            </div>
+            <div>
+              <label for="message">Message</label>
+              <textarea
+                id="message"
+                placeholder="Tell us a bit about what you’re looking for..."
+              ></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              Send message
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Team details</h3>
+          <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 0.75rem;">
+            We typically meet after school on weekdays during build season, with
+            additional weekend sessions before competitions.
+          </p>
+          <ul style="font-size: 0.85rem; color: var(--muted); margin-left: 1rem;">
+            <li>Location: Your School / Community Center</li>
+            <li>Grade levels: 9–12</li>
+            <li>No experience required—just curiosity and commitment</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    RoboRangers Robotics Team • Built with HTML &amp; CSS •
+    <a href="https://github.com" target="_blank" rel="noreferrer">View on GitHub</a>
+  </footer>
+</body>
 </html>
-   
+
+
+If you tell me your actual team name, colors, or logo vibe, I can tweak this to feel more “you.”
+
