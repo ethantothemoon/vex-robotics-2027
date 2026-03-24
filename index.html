@@ -1,108 +1,337 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rising Sunset Robotics</title>
-
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0d0d0d;
-      color: white;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    header {
-      background: black;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 3px solid #ff4500;
-    }
+```
+:root {
+  --sand:  #e8c89a;
+  --cream: #f5e8d8;
+  --dark:  #0a0a0a;
+}
 
-    .logo {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #ff4500;
-      letter-spacing: 1px;
-    }
+html, body {
+  height: 100%;
+  font-family: 'Barlow', sans-serif;
+  background: var(--dark);
+  overflow-x: hidden;
+}
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 20px;
-      font-size: 1rem;
-      transition: 0.3s;
-    }
+/* ════════════════════════════
+   PAGE WRAPPER — fills viewport
+════════════════════════════ */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+}
 
-    nav a:hover {
-      color: #ff7b00;
-    }
+/* ════════════════════════════
+   BACKGROUND
+════════════════════════════ */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 40%, #c8603a 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 20% 60%, #8b3520 0%, transparent 55%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, #b5441e 0%, #6b2010 100%);
+  z-index: 0;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  pointer-events: none;
+}
 
-    .hero {
-      text-align: center;
-      padding: 100px 20px;
-      background: linear-gradient(to bottom, #ff4500, #ff7b00, #0d0d0d);
-    }
+/* ════════════════════════════
+   DECORATIVE SHAPES
+════════════════════════════ */
+.deco {
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+}
+.deco-circle {
+  top: 60px; left: 28px;
+  width: 170px; height: 170px;
+  opacity: 0.18;
+}
+.deco-waves {
+  top: 0; right: 0;
+  width: 120px; height: 100vh;
+  opacity: 0.22;
+}
 
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-    }
+/* ════════════════════════════
+   NAV
+════════════════════════════ */
+nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 20px 48px;
+  flex-shrink: 0;
+}
+.nav-home {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  color: var(--cream);
+  text-transform: uppercase;
+  text-decoration: none;
+  margin-right: auto;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+.nav-links li { display: flex; align-items: center; }
+.nav-links li + li::before {
+  content: '';
+  display: block;
+  width: 1px; height: 16px;
+  background: rgba(245,232,216,0.4);
+  margin: 0 28px;
+}
+.nav-links a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  color: var(--cream);
+  text-transform: uppercase;
+  text-decoration: none;
+  opacity: 0.88;
+  transition: opacity 0.2s;
+}
+.nav-links a:hover { opacity: 1; text-decoration: underline; }
 
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: auto;
-    }
+/* ════════════════════════════
+   MAIN CONTENT — landscape two-column
+════════════════════════════ */
+main {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 48px;
+}
 
-    .section {
-      padding: 50px 30px;
-      max-width: 900px;
-      margin: auto;
-    }
+/* ── LEFT: Big title ── */
+.col-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 48px;
+  animation: fadeUp 0.65s ease both;
+}
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: black;
-      color: #ff7b00;
-      margin-top: 40px;
-    }
+h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3.8rem, 7.5vw, 7.5rem);
+  line-height: 0.92;
+  color: var(--cream);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+/* ── RIGHT: image + bio side by side ── */
+.col-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 36px;
+  animation: fadeUp 0.65s 0.15s ease both;
+}
+
+.hero-image {
+  width: 260px;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 16px 56px rgba(0,0,0,0.45);
+}
+.hero-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hero-image-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(160deg, #b0d8f0 0%, #7ec8e3 40%, #88c57a 70%, #6aaf5e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-bio { max-width: 340px; }
+.hero-bio-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.09em;
+  color: var(--sand);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero-bio p {
+  font-size: 0.97rem;
+  line-height: 1.7;
+  color: rgba(245,232,216,0.78);
+}
+
+/* ════════════════════════════
+   FOOTER
+════════════════════════════ */
+footer {
+  position: relative;
+  z-index: 10;
+  background: #000;
+  padding: 16px 48px;
+  flex-shrink: 0;
+}
+footer p {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+  color: var(--cream);
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════
+   ANIMATION
+════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════
+   RESPONSIVE (narrow / mobile)
+════════════════════════════ */
+@media (max-width: 860px) {
+  .page { height: auto; min-height: 100vh; }
+  main {
+    grid-template-columns: 1fr;
+    padding: 32px 24px 48px;
+    gap: 36px;
+  }
+  .col-title { padding-right: 0; }
+  .col-right { flex-direction: column; align-items: flex-start; }
+  .hero-image { width: 100%; height: 200px; }
+  nav { padding: 16px 24px; flex-wrap: wrap; gap: 12px; }
+  footer { padding: 16px 24px; }
+  .deco-circle { width: 110px; height: 110px; top: 50px; left: 10px; }
+}
+```
+
   </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">Rising Sunset Robotics</div>
+<div class="page">
+
+  <!-- Background -->
+
+  <div class="hero-bg"></div>
+
+  <!-- Deco: hatched circle (top-left) -->
+
+  <svg class="deco deco-circle" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="80" cy="80" r="72" stroke="white" stroke-width="1.4"/>
+    <circle cx="80" cy="80" r="57" stroke="white" stroke-width="1.4"/>
+    <circle cx="80" cy="80" r="42" stroke="white" stroke-width="1.4"/>
+    <circle cx="80" cy="80" r="27" stroke="white" stroke-width="1.4"/>
+    <line x1="8"  y1="80" x2="152" y2="80" stroke="white" stroke-width="1"/>
+    <line x1="80" y1="8"  x2="80"  y2="152" stroke="white" stroke-width="1"/>
+  </svg>
+
+  <!-- Deco: wavy lines (right edge) -->
+
+  <svg class="deco deco-waves" viewBox="0 0 120 600" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 0 Q50 75 100 150 Q150 225 100 300 Q50 375 100 450 Q150 525 100 600" stroke="white" stroke-width="2" fill="none"/>
+    <path d="M78  0 Q28 75  78 150 Q128 225  78 300 Q28 375  78 450 Q128 525  78 600" stroke="white" stroke-width="2" fill="none"/>
+    <path d="M56  0 Q6  75  56 150 Q106 225  56 300 Q6  375  56 450 Q106 525  56 600" stroke="white" stroke-width="2" fill="none"/>
+    <path d="M34  0 Q-16 75 34 150 Q84 225  34 300 Q-16 375 34 450 Q84 525  34 600" stroke="white" stroke-width="2" fill="none"/>
+    <path d="M12  0 Q-38 75 12 150 Q62 225  12 300 Q-38 375 12 450 Q62 525  12 600" stroke="white" stroke-width="2" fill="none"/>
+  </svg>
+
+  <!-- Nav -->
+
   <nav>
-    <a href="index.html">Home</a>
-    <a href="team.html">Meet the Team</a>
-    <a href="awards.html">Awards</a>
-    <a href="contact.html">Contact</a>
+    <a href="#" class="nav-home">Home</a>
+    <ul class="nav-links">
+      <li><a href="#team">Meet the Team</a></li>
+      <li><a href="#awards">Awards</a></li>
+      <li><a href="#forward">Going Forward</a></li>
+    </ul>
   </nav>
-</header>
 
-<section class="hero">
-  <h1>Welcome to Rising Sunset Robotics</h1>
-  <p>Where innovation meets determination. We design, build, and compete with passion, creativity, and teamwork.</p>
-</section>
+  <!-- Main two-column landscape layout -->
 
-<section class="section">
-  <h2>About Us</h2>
-  <p>
-    Rising Sunset Robotics is a student‑driven competitive robotics team focused on engineering excellence,
-    programming mastery, and community outreach. Our mission is to inspire future innovators through hands‑on
-    STEM experience and real‑world problem solving.
-  </p>
-</section>
+  <main>
 
-<footer>
-  Rising Sunset Robotics © 2026
-</footer>
+```
+<!-- LEFT: Title -->
+<div class="col-title">
+  <h1>Rising<br>Sunset<br>Robotics</h1>
+</div>
 
+<!-- RIGHT: Image + Bio -->
+<div class="col-right">
+  <!--
+    TO USE YOUR OWN PHOTO:
+    Replace the <div class="hero-image-placeholder">...</div>
+    with: <img src="your-photo.jpg" alt="Team photo">
+    inside the .hero-image div below.
+  -->
+  <div class="hero-image">
+    <div class="hero-image-placeholder">
+      <svg width="72" height="54" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+        <ellipse cx="58" cy="18" rx="12" ry="10" fill="white" opacity="0.9"/>
+        <ellipse cx="48" cy="20" rx="9"  ry="7"  fill="white" opacity="0.8"/>
+        <ellipse cx="0"  cy="60" rx="50" ry="22" fill="#7ab86a"/>
+        <ellipse cx="80" cy="60" rx="40" ry="18" fill="#5ea050"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hero-bio">
+    <p class="hero-bio-label">Team Biography / History &amp; Goal</p>
+    <p>Add your team's story here — how you got started, what drives you, and what you're building toward.</p>
+  </div>
+</div>
+```
+
+  </main>
+
+  <!-- Footer -->
+
+  <footer>
+    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
+  </footer>
+
+</div>
 </body>
 </html>
