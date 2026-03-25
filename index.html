@@ -1,535 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rising Sunset Robotics</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rising Sunset Robotics</title>
 
-        body {
-            font-family: 'Arial Black', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(to right, #5D3A1A 0%, #8B4513 10%, #A0522D 25%, #B8860B 45%, #CD853F 65%, #DAA520 85%, #D4A574 100%);
-            position: relative;
-            overflow-x: hidden;
-        }
+  <!-- Fonts: Anton for big title, Montserrat for other text -->
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
 
-        /* LEFT DECORATIVE LINES */
-        .deco-left {
-            position: absolute;
-            left: 30px;
-            top: 100px;
-            width: 70px;
-            height: 380px;
-            pointer-events: none;
-            z-index: 1;
-        }
+  <style>
+    /* ---------- Reset & base ---------- */
+    * { box-sizing: border-box; }
+    html,body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-        .deco-left svg {
-            width: 100%;
-            height: 100%;
-        }
+    /* ---------- Full-page background: layered sunset + noise ---------- */
+    body::before {
+      /* layered gradients to approximate the warm multi-stop sunset in the screenshot */
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background:
+        radial-gradient(1200px 400px at 90% 12%, rgba(20,10,8,0.55), transparent 30%),
+        radial-gradient(800px 300px at 10% 20%, rgba(10,6,6,0.45), transparent 30%),
+        linear-gradient(135deg,
+          #5b3420 0%,
+          #8a4f28 18%,
+          #b1682f 34%,
+          #c98853 56%,
+          #d9ab5b 76%,
+          #c08858 100%);
+      background-blend-mode: normal, overlay, normal;
+    }
 
-        /* RIGHT DECORATIVE WAVES */
-        .deco-right {
-            position: absolute;
-            right: 25px;
-            top: 100px;
-            width: 90px;
-            height: 380px;
-            pointer-events: none;
-            z-index: 1;
-        }
+    /* subtle grain/noise overlay (data URI tiny svg with dots) */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: 0.28;
+      background-image: url("data:image/svg+xml;utf8,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'>\
+          <defs><pattern id='p' width='6' height='6' patternUnits='userSpaceOnUse'><rect width='6' height='6' fill='none'/><circle cx='1' cy='1' r='0.6' fill='%23ffffff' opacity='0.15'/></pattern></defs>\
+          <rect width='100%' height='100%' fill='url(%23p)'/></svg>");
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
 
-        .deco-right svg {
-            width: 100%;
-            height: 100%;
-        }
+    /* ---------- Stage container ---------- */
+    .stage {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        /* HEADER */
-        header {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 25px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 20;
-        }
+    /* ---------- Header (top bar) ---------- */
+    header {
+      padding: 22px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
 
-        .logo {
-            color: white;
-            font-size: 36px;
-            font-weight: 900;
-            letter-spacing: 3px;
-        }
+    /* small HOME at top-left */
+    .home-label {
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 1px;
+      color: #ffffff;
+      text-shadow: 0 1px 0 rgba(0,0,0,0.45);
+    }
 
-        nav {
-            display: flex;
-            gap: 60px;
-            align-items: center;
-        }
+    /* nav centered visually: we center nav by absolute-centering within header */
+    nav {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 20px;
+      display: flex;
+      gap: 36px;
+      align-items: center;
+      z-index: 11;
+    }
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 1px;
+      padding: 6px 2px;
+    }
 
-        nav a:hover {
-            opacity: 0.8;
-        }
+    /* vertical separator lines between nav items (exactly like screenshot) */
+    nav a + a { position: relative; padding-left: 18px; }
+    nav a + a::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 1px;
+      transform: scaleY(0.9);
+    }
 
-        nav a:before {
-            content: '| ';
-            margin-right: 10px;
-        }
+    /* ---------- Decorative left striped badge (cluster) ---------- */
+    .left-badge {
+      position: absolute;
+      top: 110px;
+      left: 36px;
+      width: 150px;
+      height: 150px;
+      z-index: 3;
+      pointer-events: none;
+      transform: rotate(-6deg);
+      opacity: 0.95;
+    }
 
-        nav a:first-of-type:before {
-            content: '';
-        }
+    /* ---------- Decorative right wavy thick lines ---------- */
+    .right-waves {
+      position: absolute;
+      top: 70px;
+      right: 28px;
+      width: 160px;
+      height: 320px;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.98;
+    }
 
-        /* MAIN CONTENT */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 80px;
-            position: relative;
-            z-index: 5;
-        }
+    /* ---------- Hero/content area ---------- */
+    main.hero {
+      padding: 48px 80px 40px 80px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+      z-index: 4;
+      min-height: calc(100vh - 160px); /* leave room for header+footer */
+    }
 
-        .content-container {
-            display: flex;
-            gap: 120px;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 1400px;
-        }
+    .hero-inner {
+      width: 1150px; /* match screenshot width feel */
+      max-width: calc(100% - 80px);
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 40px;
+    }
 
-        /* ILLUSTRATION BOX */
-        .illustration-box {
-            flex-shrink: 0;
-            position: relative;
-        }
+    /* big title aligned center horizontally in the hero area, but visually sits to the right of the illustration */
+    .title-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 18px;
+      padding-top: 22px;
+    }
 
-        .illustration {
-            width: 340px;
-            height: 280px;
-            background: linear-gradient(180deg, #87CEEB 0%, #ADD8E6 45%, #90EE90 60%, #76D94A 100%);
-            border-radius: 25px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
+    h1.title {
+      font-family: "Anton", "Arial Black", sans-serif;
+      font-size: 120px; /* large */
+      line-height: 0.92;
+      margin: 0;
+      text-align: center;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 6px 6px 18px rgba(0,0,0,0.55);
+      transform: translateY(6px);
+    }
 
-        /* Cloud */
-        .cloud {
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110px;
-            height: 55px;
-            background: white;
-            border-radius: 60px;
-            box-shadow: inset -8px -8px 20px rgba(200, 200, 200, 0.4);
-        }
+    /* subtitle text on the right of the illustration in the screenshot (smaller, light) */
+    .subtitle {
+      font-weight: 600;
+      font-size: 18px;
+      color: #f0ece8;
+      opacity: 0.95;
+      text-align: center;
+      margin-top: -6px;
+    }
 
-        /* Grass waves */
-        .grass {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 90px;
-            background: #90EE90;
-        }
+    /* ---------- Illustration rounded card (left-of-center) ---------- */
+    .card-col {
+      width: 360px; /* card+margin in screenshot */
+      flex: 0 0 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 90px; /* push card down to match screenshot vertical position */
+    }
 
-        .grass::before {
-            content: '';
-            position: absolute;
-            top: -25px;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 50"><path d="M0,25 Q42.5,5 85,25 T170,25 T255,25 T340,25" stroke="none" fill="%2376D94A"/><path d="M0,25 Q42.5,15 85,25 T170,25 T255,25 T340,25" stroke="none" fill="%2390EE90"/><path d="M0,25 Q42.5,35 85,25 T170,25 T255,25 T340,25" stroke="none" fill="%2376D94A"/></svg>');
-            background-size: 170px 50px;
-            background-repeat: repeat-x;
-        }
+    .land-card {
+      width: 260px;
+      height: 220px;
+      background: linear-gradient(180deg, #cfe9ff 0%, #bfe7ff 40%, #bde6bb 60%);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.06);
+    }
 
-        /* TEXT CONTENT */
-        .text-content {
-            flex: 1;
-            color: white;
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
-        }
+    /* optional soft inner glow to match screenshot fade on top */
+    .land-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.12) 20%, transparent 60%);
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
 
-        .text-content h1 {
-            font-size: 80px;
-            font-weight: 900;
-            line-height: 1.0;
-            margin-bottom: 40px;
-            letter-spacing: 3px;
-        }
+    /* cloud and hills are SVG inside card for crisp shapes */
+    .land-svg { display: block; width:100%; height:100%; }
 
-        .text-content p {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
+    /* ---------- Footer: black bar across bottom ---------- */
+    footer.site-footer {
+      background: #000;
+      color: #fff;
+      padding: 18px 36px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 28px;
+      box-shadow: 0 -2px 0 rgba(0,0,0,0.4);
+      z-index: 20;
+    }
 
-        /* FOOTER */
-        footer {
-            background: #000;
-            color: white;
-            padding: 30px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            z-index: 20;
-        }
+    .footer-left {
+      font-size: 18px;
+      line-height: 1.05;
+    }
 
-        .footer-questions {
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: 1px;
-            line-height: 1.5;
-        }
+    .footer-left .contact {
+      display: block;
+      margin-top: 8px;
+      font-size: 16px;
+    }
 
-        .footer-contact {
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: 1px;
-        }
+    /* match the screenshot extra large bold number style on the left contact line */
+    .footer-left strong { font-weight: 900; }
 
-        /* RESPONSIVE */
-        @media (max-width: 1400px) {
-            .content-container {
-                gap: 80px;
-            }
+    /* small right part (if needed) */
+    .footer-right {
+      margin-left: auto;
+      font-size: 16px;
+      font-weight: 700;
+      opacity: 0.95;
+    }
 
-            .text-content h1 {
-                font-size: 68px;
-            }
+    /* ---------- Responsiveness & fine-tuning ---------- */
+    @media (max-width: 1280px) {
+      h1.title { font-size: 96px; }
+      .hero-inner { width: 1000px; }
+      .card-col { margin-top: 70px; }
+    }
 
-            main {
-                padding: 50px 60px;
-            }
-        }
+    @media (max-width: 900px) {
+      nav { top: 16px; gap: 22px; }
+      h1.title { font-size: 56px; }
+      .land-card { width: 220px; height: 190px; border-radius: 14px; }
+      .card-col { width: 280px; flex-basis: 280px; margin-top: 40px; }
+      .hero-inner { flex-direction: column; align-items: center; gap: 30px; }
+      main.hero { padding: 30px 24px; min-height: calc(100vh - 140px); }
+    }
 
-        @media (max-width: 1024px) {
-            .content-container {
-                flex-direction: column;
-                gap: 60px;
-            }
+    @media (max-width: 520px) {
+      .home-label { font-size: 16px; }
+      nav a { font-size: 12px; }
+      .subtitle { font-size: 14px; }
+      footer.site-footer { flex-direction: column; align-items: stretch; gap: 10px; text-align: left; }
+    }
 
-            .text-content h1 {
-                font-size: 56px;
-            }
-
-            nav {
-                gap: 30px;
-            }
-
-            nav a {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 20px;
-                padding: 15px 20px;
-            }
-
-            .logo {
-                font-size: 28px;
-            }
-
-            nav {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            nav a {
-                font-size: 14px;
-            }
-
-            nav a:before {
-                content: '';
-            }
-
-            .deco-left, .deco-right {
-                opacity: 0.2;
-                width: 40px;
-                left: 10px;
-                right: 10px;
-            }
-
-            .text-content h1 {
-                font-size: 40px;
-            }
-
-            .text-content p {
-                font-size: 16px;
-            }
-
-            .illustration {
-                width: 250px;
-                height: 220px;
-            }
-
-            main {
-                padding: 40px 20px;
-            }
-
-            footer {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <!-- LEFT DECORATIVE DIAGONAL LINES -->
-    <div class="deco-left">
-        <svg viewBox="0 0 70 380" xmlns="http://www.w3.org/2000/svg">
-            <g stroke="white" stroke-width="2.5" opacity="0.7">
-                <!-- Row 1 -->
-                <line x1="8" y1="0" x2="0" y2="35" />
-                <line x1="16" y1="0" x2="8" y2="35" />
-                <line x1="24" y1="0" x2="16" y2="35" />
-                <line x1="32" y1="0" x2="24" y2="35" />
-                <line x1="40" y1="0" x2="32" y2="35" />
-                <line x1="48" y1="0" x2="40" y2="35" />
-                <line x1="56" y1="0" x2="48" y2="35" />
-                <line x1="64" y1="0" x2="56" y2="35" />
-                
-                <!-- Row 2 -->
-                <line x1="8" y1="35" x2="0" y2="70" />
-                <line x1="16" y1="35" x2="8" y2="70" />
-                <line x1="24" y1="35" x2="16" y2="70" />
-                <line x1="32" y1="35" x2="24" y2="70" />
-                <line x1="40" y1="35" x2="32" y2="70" />
-                <line x1="48" y1="35" x2="40" y2="70" />
-                <line x1="56" y1="35" x2="48" y2="70" />
-                <line x1="64" y1="35" x2="56" y2="70" />
-                
-                <!-- Row 3 -->
-                <line x1="8" y1="70" x2="0" y2="105" />
-                <line x1="16" y1="70" x2="8" y2="105" />
-                <line x1="24" y1="70" x2="16" y2="105" />
-                <line x1="32" y1="70" x2="24" y2="105" />
-                <line x1="40" y1="70" x2="32" y2="105" />
-                <line x1="48" y1="70" x2="40" y2="105" />
-                <line x1="56" y1="70" x2="48" y2="105" />
-                <line x1="64" y1="70" x2="56" y2="105" />
-                
-                <!-- Row 4 -->
-                <line x1="8" y1="105" x2="0" y2="140" />
-                <line x1="16" y1="105" x2="8" y2="140" />
-                <line x1="24" y1="105" x2="16" y2="140" />
-                <line x1="32" y1="105" x2="24" y2="140" />
-                <line x1="40" y1="105" x2="32" y2="140" />
-                <line x1="48" y1="105" x2="40" y2="140" />
-                <line x1="56" y1="105" x2="48" y2="140" />
-                <line x1="64" y1="105" x2="56" y2="140" />
-                
-                <!-- Row 5 -->
-                <line x1="8" y1="140" x2="0" y2="175" />
-                <line x1="16" y1="140" x2="8" y2="175" />
-                <line x1="24" y1="140" x2="16" y2="175" />
-                <line x1="32" y1="140" x2="24" y2="175" />
-                <line x1="40" y1="140" x2="32" y2="175" />
-                <line x1="48" y1="140" x2="40" y2="175" />
-                <line x1="56" y1="140" x2="48" y2="175" />
-                <line x1="64" y1="140" x2="56" y2="175" />
-                
-                <!-- Row 6 -->
-                <line x1="8" y1="175" x2="0" y2="210" />
-                <line x1="16" y1="175" x2="8" y2="210" />
-                <line x1="24" y1="175" x2="16" y2="210" />
-                <line x1="32" y1="175" x2="24" y2="210" />
-                <line x1="40" y1="175" x2="32" y2="210" />
-                <line x1="48" y1="175" x2="40" y2="210" />
-                <line x1="56" y1="175" x2="48" y2="210" />
-                <line x1="64" y1="175" x2="56" y2="210" />
-                
-                <!-- Row 7 -->
-                <line x1="8" y1="210" x2="0" y2="245" />
-                <line x1="16" y1="210" x2="8" y2="245" />
-                <line x1="24" y1="210" x2="16" y2="245" />
-                <line x1="32" y1="210" x2="24" y2="245" />
-                <line x1="40" y1="210" x2="32" y2="245" />
-                <line x1="48" y1="210" x2="40" y2="245" />
-                <line x1="56" y1="210" x2="48" y2="245" />
-                <line x1="64" y1="210" x2="56" y2="245" />
-                
-                <!-- Row 8 -->
-                <line x1="8" y1="245" x2="0" y2="280" />
-                <line x1="16" y1="245" x2="8" y2="280" />
-                <line x1="24" y1="245" x2="16" y2="280" />
-                <line x1="32" y1="245" x2="24" y2="280" />
-                <line x1="40" y1="245" x2="32" y2="280" />
-                <line x1="48" y1="245" x2="40" y2="280" />
-                <line x1="56" y1="245" x2="48" y2="280" />
-                <line x1="64" y1="245" x2="56" y2="280" />
-                
-                <!-- Row 9 -->
-                <line x1="8" y1="280" x2="0" y2="315" />
-                <line x1="16" y1="280" x2="8" y2="315" />
-                <line x1="24" y1="280" x2="16" y2="315" />
-                <line x1="32" y1="280" x2="24" y2="315" />
-                <line x1="40" y1="280" x2="32" y2="315" />
-                <line x1="48" y1="280" x2="40" y2="315" />
-                <line x1="56" y1="280" x2="48" y2="315" />
-                <line x1="64" y1="280" x2="56" y2="315" />
-                
-                <!-- Row 10 -->
-                <line x1="8" y1="315" x2="0" y2="350" />
-                <line x1="16" y1="315" x2="8" y2="350" />
-                <line x1="24" y1="315" x2="16" y2="350" />
-                <line x1="32" y1="315" x2="24" y2="350" />
-                <line x1="40" y1="315" x2="32" y2="350" />
-                <line x1="48" y1="315" x2="40" y2="350" />
-                <line x1="56" y1="315" x2="48" y2="350" />
-                <line x1="64" y1="315" x2="56" y2="350" />
-                
-                <!-- Row 11 -->
-                <line x1="8" y1="350" x2="0" y2="380" />
-                <line x1="16" y1="350" x2="8" y2="380" />
-                <line x1="24" y1="350" x2="16" y2="380" />
-                <line x1="32" y1="350" x2="24" y2="380" />
-                <line x1="40" y1="350" x2="32" y2="380" />
-                <line x1="48" y1="350" x2="40" y2="380" />
-                <line x1="56" y1="350" x2="48" y2="380" />
-                <line x1="64" y1="350" x2="56" y2="380" />
-            </g>
-        </svg>
-    </div>
+  <div class="stage">
 
-    <!-- RIGHT DECORATIVE WAVY LINES -->
-    <div class="deco-right">
-        <svg viewBox="0 0 90 380" xmlns="http://www.w3.org/2000/svg">
-            <g stroke="white" stroke-width="3" fill="none" opacity="0.85">
-                <!-- Row 1 -->
-                <path d="M 20,0 Q 35,12 20,24 T 20,48" />
-                <path d="M 30,0 Q 45,12 30,24 T 30,48" />
-                <path d="M 40,0 Q 55,12 40,24 T 40,48" />
-                <path d="M 50,0 Q 65,12 50,24 T 50,48" />
-                <path d="M 60,0 Q 75,12 60,24 T 60,48" />
-                <path d="M 70,0 Q 85,12 70,24 T 70,48" />
-                
-                <!-- Row 2 -->
-                <path d="M 20,48 Q 35,60 20,72 T 20,96" />
-                <path d="M 30,48 Q 45,60 30,72 T 30,96" />
-                <path d="M 40,48 Q 55,60 40,72 T 40,96" />
-                <path d="M 50,48 Q 65,60 50,72 T 50,96" />
-                <path d="M 60,48 Q 75,60 60,72 T 60,96" />
-                <path d="M 70,48 Q 85,60 70,72 T 70,96" />
-                
-                <!-- Row 3 -->
-                <path d="M 20,96 Q 35,108 20,120 T 20,144" />
-                <path d="M 30,96 Q 45,108 30,120 T 30,144" />
-                <path d="M 40,96 Q 55,108 40,120 T 40,144" />
-                <path d="M 50,96 Q 65,108 50,120 T 50,144" />
-                <path d="M 60,96 Q 75,108 60,120 T 60,144" />
-                <path d="M 70,96 Q 85,108 70,120 T 70,144" />
-                
-                <!-- Row 4 -->
-                <path d="M 20,144 Q 35,156 20,168 T 20,192" />
-                <path d="M 30,144 Q 45,156 30,168 T 30,192" />
-                <path d="M 40,144 Q 55,156 40,168 T 40,192" />
-                <path d="M 50,144 Q 65,156 50,168 T 50,192" />
-                <path d="M 60,144 Q 75,156 60,168 T 60,192" />
-                <path d="M 70,144 Q 85,156 70,168 T 70,192" />
-                
-                <!-- Row 5 -->
-                <path d="M 20,192 Q 35,204 20,216 T 20,240" />
-                <path d="M 30,192 Q 45,204 30,216 T 30,240" />
-                <path d="M 40,192 Q 55,204 40,216 T 40,240" />
-                <path d="M 50,192 Q 65,204 50,216 T 50,240" />
-                <path d="M 60,192 Q 75,204 60,216 T 60,240" />
-                <path d="M 70,192 Q 85,204 70,216 T 70,240" />
-                
-                <!-- Row 6 -->
-                <path d="M 20,240 Q 35,252 20,264 T 20,288" />
-                <path d="M 30,240 Q 45,252 30,264 T 30,288" />
-                <path d="M 40,240 Q 55,252 40,264 T 40,288" />
-                <path d="M 50,240 Q 65,252 50,264 T 50,288" />
-                <path d="M 60,240 Q 75,252 60,264 T 60,288" />
-                <path d="M 70,240 Q 85,252 70,264 T 70,288" />
-                
-                <!-- Row 7 -->
-                <path d="M 20,288 Q 35,300 20,312 T 20,336" />
-                <path d="M 30,288 Q 45,300 30,312 T 30,336" />
-                <path d="M 40,288 Q 55,300 40,312 T 40,336" />
-                <path d="M 50,288 Q 65,300 50,312 T 50,336" />
-                <path d="M 60,288 Q 75,300 60,312 T 60,336" />
-                <path d="M 70,288 Q 85,300 70,312 T 70,336" />
-                
-                <!-- Row 8 -->
-                <path d="M 20,336 Q 35,348 20,360 T 20,380" />
-                <path d="M 30,336 Q 45,348 30,360 T 30,380" />
-                <path d="M 40,336 Q 55,348 40,360 T 40,380" />
-                <path d="M 50,336 Q 65,348 50,360 T 50,380" />
-                <path d="M 60,336 Q 75,348 60,360 T 60,380" />
-                <path d="M 70,336 Q 85,348 70,360 T 70,380" />
-            </g>
-        </svg>
-    </div>
-
-    <!-- HEADER -->
+    <!-- Header -->
     <header>
-        <div class="logo">HOME</div>
-        <nav>
-            <a href="#team">MEET THE TEAM</a>
-            <a href="#awards">AWARDS</a>
-            <a href="#forward">GOING FORWARD</a>
-        </nav>
+      <div class="home-label">HOME</div>
+
+      <nav aria-label="Main navigation">
+        <a href="#team">MEET THE TEAM</a>
+        <a href="#awards">AWARDS</a>
+        <a href="#forward">GOING FORWARD</a>
+      </nav>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main>
-        <div class="content-container">
-            <div class="illustration-box">
-                <div class="illustration">
-                    <div class="cloud"></div>
-                    <div class="grass"></div>
-                </div>
-            </div>
-            <div class="text-content">
-                <h1>RISING SUNSET<br>ROBOTICS</h1>
-                <p>Team Biography/History and Goal</p>
-            </div>
+    <!-- Decorative left tilted striped badge -->
+    <div class="left-badge" aria-hidden="true">
+      <!-- composed of two overlapping soft circles clipped with diagonal stripes -->
+      <svg viewBox="0 0 160 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="diagStripes" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(-25)">
+            <rect width="8" height="8" fill="transparent"/>
+            <rect x="0" y="0" width="4" height="8" fill="white" opacity="0.95"/>
+          </pattern>
+          <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="0.6" />
+          </filter>
+        </defs>
+
+        <!-- base blobs -->
+        <g fill="none" stroke="none" filter="url(#soft)">
+          <circle cx="48" cy="68" r="34" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="88" cy="44" r="40" fill="rgba(255,255,255,0.06)"/>
+        </g>
+
+        <!-- stripe clipping mask over a rounded cluster -->
+        <g transform="translate(6,8)" fill="url(#diagStripes)" opacity="0.95">
+          <path d="M30 40
+                   a36 36 0 1 0 72 0
+                   a26 26 0 1 1 -66 12
+                   z" />
+        </g>
+
+        <!-- soft outline -->
+        <g stroke="rgba(255,255,255,0.08)" stroke-width="1.2" fill="none">
+          <circle cx="48" cy="68" r="34"/>
+          <circle cx="88" cy="44" r="40"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Decorative right wavy thick lines -->
+    <div class="right-waves" aria-hidden="true">
+      <svg viewBox="0 0 160 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- multiple stroked paths that curve same shape, spaced horizontally -->
+          <path d="M140 10 C 120 40, 120 80, 140 110 C 160 140, 160 180, 140 210 C 120 240, 120 280, 140 310" />
+          <path d="M150 10 C 130 40, 130 80, 150 110 C 170 140, 170 180, 150 210 C 130 240, 130 280, 150 310" />
+          <path d="M160 10 C 140 40, 140 80, 160 110 C 180 140, 180 180, 160 210 C 140 240, 140 280, 160 310" />
+          <path d="M130 10 C 110 40, 110 80, 130 110 C 150 140, 150 180, 130 210 C 110 240, 110 280, 130 310" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- Main hero -->
+    <main class="hero" role="main">
+      <div class="hero-inner">
+
+        <!-- left column: illustration card (rounded image box) -->
+        <div class="card-col">
+          <div class="land-card" role="img" aria-label="illustration of hills and sky">
+            <!-- inline SVG for cloud + rolling hills -->
+            <svg class="land-svg" viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" >
+              <!-- sky gradient -->
+              <defs>
+                <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#eaf6ff"/>
+                  <stop offset="0.6" stop-color="#cfe9ff"/>
+                  <stop offset="1" stop-color="#bde6bb"/>
+                </linearGradient>
+                <linearGradient id="hillA" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#9fc86d"/>
+                  <stop offset="1" stop-color="#72a73a"/>
+                </linearGradient>
+                <linearGradient id="hillB" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#d2f08d"/>
+                  <stop offset="1" stop-color="#a8c95a"/>
+                </linearGradient>
+              </defs>
+
+              <rect width="100%" height="100%" fill="url(#sky)"></rect>
+
+              <!-- cloud -->
+              <g transform="translate(90,40)">
+                <ellipse cx="60" cy="30" rx="40" ry="20" fill="#ffffff"/>
+                <ellipse cx="35" cy="36" rx="28" ry="16" fill="#ffffff"/>
+                <ellipse cx="90" cy="36" rx="28" ry="16" fill="#ffffff"/>
+              </g>
+
+              <!-- hills: layered bezier shapes near bottom -->
+              <path d="M0 220 C70 200 110 200 200 220 C280 240 320 200 360 220 L360 300 L0 300 Z" fill="url(#hillA)"/>
+              <path d="M0 250 C70 230 120 230 200 250 C280 270 320 230 360 250 L360 300 L0 300 Z" fill="url(#hillB)" opacity="0.95"/>
+              <!-- small highlight on hill -->
+              <path d="M0 235 C70 215 110 215 200 235 C280 255 320 215 360 235 L360 260 L0 260 Z" fill="#cbe8a5" opacity="0.28"></path>
+            </svg>
+          </div>
         </div>
+
+        <!-- right column: big centered title -->
+        <div class="title-wrap">
+          <h1 class="title">RISING SUNSET<br>ROBOTICS</h1>
+          <div class="subtitle">Team Biography/History and Goal</div>
+        </div>
+
+      </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-questions">
-            QUESTIONS?<br>
-            CONTACT: +1 (840)-279-3850 OR
-        </div>
-        <div class="footer-contact">
-            EMAIL: info@risingsunsetrobotics.com
-        </div>
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+      <div class="footer-left">
+        QUESTIONS?<br>
+        <span class="contact">CONTACT: <strong>+1 (940)-279-3850</strong> OR</span>
+      </div>
+
+      <div class="footer-right">EMAIL: info@risingsunsetrobotics.com</div>
     </footer>
+
+  </div>
 </body>
 </html>
