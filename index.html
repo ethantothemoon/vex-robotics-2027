@@ -1,13 +1,18 @@
-Absolutely — now that I’ve seen the style you’re going for, I can match it exactly:
-clean sunset gradient, centered title, tabs across the top, and a layout that feels like your slide.
-Here’s a fully polished Rising Sunset Robotics homepage that looks like the image you uploaded — and you can paste this straight into GitHub as index.html.
-I’ll then give you the matching Meet the Team, Awards, and Contact pages so all four tabs work seamlessly.
-
-🌅 RISING SUNSET ROBOTICS — HOME PAGE (matches your design)
-index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+    Rising Sunset Robotics - Detailed Home Page
+    Goal: Match the slide look as closely as possible with a rich, professional layout.
+    - Sunset gradient background
+    - White abstract curved lines on left and right
+    - Centered bold title: RISING SUNSET ROBOTICS
+    - Top navigation: HOME | MEET THE TEAM | AWARDS | GOING FORWARD
+    - Middle row: left "image" area, right subtitle text
+    - Bottom-left contact text
+    - Professional font, subtle shadows, responsive behavior
+  -->
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rising Sunset Robotics</title>
@@ -15,42 +20,143 @@ index.html
   <!-- Professional Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
 
   <style>
-    body {
+    /* ========== GLOBAL RESET & BASE STYLES ========== */
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(to bottom, #ff4500, #ff7b00, #0d0d0d);
-      color: white;
-      text-align: center;
+      padding: 0;
     }
 
-    /* NAV BAR */
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      /* Sunset-like gradient background */
+      background: linear-gradient(
+        to bottom,
+        #ff7b00 0%,
+        #ffb347 35%,
+        #ffe7b8 65%,
+        #ffffff 100%
+      );
+      color: #ffffff;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* A wrapper to keep content centered and nicely spaced */
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-bottom: 80px; /* space for bottom contact text */
+    }
+
+    /* ========== DECORATIVE CURVED LINES ========== */
+    /* Left curve */
+    .curve-left,
+    .curve-right {
+      position: absolute;
+      top: -80px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .curve-left {
+      left: -160px;
+      transform: rotate(18deg);
+    }
+
+    .curve-right {
+      right: -160px;
+      transform: rotate(-18deg);
+    }
+
+    /* Additional inner curves for more detail */
+    .curve-left::before,
+    .curve-left::after,
+    .curve-right::before,
+    .curve-right::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .curve-left::before {
+      width: 360px;
+      height: 360px;
+      top: 30px;
+      left: 30px;
+    }
+
+    .curve-left::after {
+      width: 300px;
+      height: 300px;
+      top: 60px;
+      left: 60px;
+    }
+
+    .curve-right::before {
+      width: 360px;
+      height: 360px;
+      top: 30px;
+      right: 30px;
+    }
+
+    .curve-right::after {
+      width: 300px;
+      height: 300px;
+      top: 60px;
+      right: 60px;
+    }
+
+    /* ========== TOP NAVIGATION ========== */
     header {
+      position: relative;
+      z-index: 2;
+      padding: 24px 40px 10px;
       display: flex;
       justify-content: center;
+    }
+
+    nav {
+      display: flex;
       gap: 40px;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.18);
+      padding: 10px 30px;
+      border-radius: 999px;
       backdrop-filter: blur(6px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
 
     nav a {
-      color: white;
+      color: #ffffff;
       text-decoration: none;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
+      letter-spacing: 0.06em;
       position: relative;
-      padding-bottom: 5px;
-      transition: 0.3s;
+      padding-bottom: 4px;
+      text-transform: uppercase;
+      transition: color 0.25s ease;
     }
 
-    nav a:hover {
-      color: #ffe0b3;
-    }
-
-    /* Sliding underline */
     nav a::after {
       content: "";
       position: absolute;
@@ -58,12 +164,15 @@ index.html
       bottom: 0;
       width: 0%;
       height: 3px;
-      background: white;
-      transition: width 0.3s ease;
+      background: #ffffff;
+      transition: width 0.25s ease;
     }
 
-    nav a:hover::after,
-    nav a.active::after {
+    nav a:hover {
+      color: #fff7e0;
+    }
+
+    nav a:hover::after {
       width: 100%;
     }
 
@@ -72,66 +181,296 @@ index.html
       font-weight: 700;
     }
 
-    /* MAIN TITLE */
-    .title {
-      margin-top: 80px;
-      font-size: 3.5rem;
+    nav a.active::after {
+      width: 100%;
+    }
+
+    /* ========== MAIN TITLE SECTION ========== */
+    .main-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 0;
+    }
+
+    .title-wrapper {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .title-text {
+      font-size: 3.6rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.35),
+        0 0 18px rgba(0, 0, 0, 0.25);
+      margin-bottom: 10px;
+    }
+
+    .title-underline {
+      width: 260px;
+      height: 4px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 999px;
+    }
+
+    /* ========== CENTER ROW: IMAGE + SUBTITLE ========== */
+    .center-row {
+      margin-top: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      max-width: 900px;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    /* Left "image" area: we simulate the landscape with CSS */
+    .landscape-card {
+      width: 280px;
+      height: 180px;
+      border-radius: 16px;
+      background: linear-gradient(to top, #4caf50 0%, #8bc34a 40%, #87ceeb 40%, #87ceeb 100%);
+      box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.35),
+        0 0 0 3px rgba(255, 255, 255, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Hills */
+    .landscape-card::before {
+      content: "";
+      position: absolute;
+      width: 220%;
+      height: 120%;
+      background: radial-gradient(circle at 20% 80%, #4caf50 0, #4caf50 40%, transparent 41%),
+                  radial-gradient(circle at 70% 90%, #2e7d32 0, #2e7d32 40%, transparent 41%);
+      bottom: -40%;
+      left: -40%;
+      opacity: 0.95;
+    }
+
+    /* Cloud */
+    .cloud {
+      position: absolute;
+      top: 30px;
+      left: 40px;
+      width: 70px;
+      height: 40px;
+      background: #ffffff;
+      border-radius: 999px;
+      box-shadow:
+        18px 0 0 0 #ffffff,
+        9px -12px 0 0 #ffffff;
+      opacity: 0.9;
+    }
+
+    /* Sun */
+    .sun {
+      position: absolute;
+      top: 35px;
+      right: 40px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffeb3b 0%, #ff9800 70%);
+      box-shadow: 0 0 18px rgba(255, 152, 0, 0.8);
+    }
+
+    /* Right subtitle text */
+    .subtitle-block {
+      max-width: 360px;
+      text-align: left;
+    }
+
+    .subtitle-heading {
+      font-size: 1.6rem;
       font-weight: 700;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.4);
+      color: #333333;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+      margin-bottom: 8px;
     }
 
-    /* SUBTITLE BOX */
-    .subtitle-box {
-      margin: 40px auto;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 25px 40px;
-      border-radius: 12px;
-      width: 70%;
-      max-width: 700px;
-      font-size: 1.3rem;
+    .subtitle-line {
+      width: 80px;
+      height: 3px;
+      background: #333333;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .subtitle-text {
+      font-size: 1.05rem;
       font-weight: 500;
-      backdrop-filter: blur(4px);
+      color: #333333;
+      line-height: 1.6;
     }
 
-    /* CONTACT BAR */
-    footer {
-      margin-top: 100px;
-      background: black;
-      padding: 20px;
+    /* ========== BOTTOM CONTACT TEXT ========== */
+    .contact-footer {
+      position: absolute;
+      left: 24px;
+      bottom: 20px;
+      z-index: 2;
+      color: #000000;
       font-size: 1rem;
-      color: white;
+      font-weight: 600;
+      line-height: 1.4;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+    }
+
+    .contact-footer span {
+      display: block;
+    }
+
+    /* ========== RESPONSIVE ADJUSTMENTS ========== */
+    @media (max-width: 900px) {
+      .title-text {
+        font-size: 3rem;
+        letter-spacing: 0.12em;
+      }
+
+      .center-row {
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .subtitle-block {
+        text-align: center;
+      }
+
+      .subtitle-heading {
+        text-align: center;
+      }
+
+      .subtitle-line {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        gap: 18px;
+        padding: 8px 18px;
+      }
+
+      nav a {
+        font-size: 0.85rem;
+        letter-spacing: 0.04em;
+      }
+
+      .title-text {
+        font-size: 2.4rem;
+        letter-spacing: 0.1em;
+      }
+
+      .landscape-card {
+        width: 240px;
+        height: 150px;
+      }
+
+      .contact-footer {
+        font-size: 0.9rem;
+        left: 16px;
+        bottom: 16px;
+      }
+
+      .curve-left,
+      .curve-right {
+        width: 320px;
+        height: 320px;
+        top: -60px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 18px 10px 6px;
+      }
+
+      nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 18px;
+      }
+
+      .title-wrapper {
+        margin-top: 24px;
+      }
+
+      .title-text {
+        font-size: 2rem;
+      }
+
+      .center-row {
+        margin-top: 30px;
+      }
     }
   </style>
 </head>
 
 <body>
+  <div class="page-wrapper">
+    <!-- Decorative curved lines (left & right) -->
+    <div class="curve-left"></div>
+    <div class="curve-right"></div>
 
-<header>
-  <nav>
-    <a href="index.html" class="active">HOME</a>
-    <a href="team.html">MEET THE TEAM</a>
-    <a href="awards.html">AWARDS</a>
-    <a href="contact.html">CONTACT</a>
-  </nav>
-</header>
+    <!-- Top navigation bar -->
+    <header>
+      <nav>
+        <!-- This is the home page, so HOME is active -->
+        <a href="index.html" class="active">HOME</a>
+        <a href="team.html">MEET THE TEAM</a>
+        <a href="awards.html">AWARDS</a>
+        <a href="forward.html">GOING FORWARD</a>
+      </nav>
+    </header>
 
-<h1 class="title">RISING SUNSET ROBOTICS</h1>
+    <!-- Main content area -->
+    <main class="main-content">
+      <!-- Title section -->
+      <div class="title-wrapper">
+        <div class="title-text">RISING SUNSET ROBOTICS</div>
+        <div class="title-underline"></div>
+      </div>
 
-<div class="subtitle-box">
-  Team Biography / History and Goal
-</div>
+      <!-- Center row: left "image" + right subtitle -->
+      <section class="center-row">
+        <!-- Simulated landscape image card -->
+        <div class="landscape-card">
+          <div class="cloud"></div>
+          <div class="sun"></div>
+        </div>
 
-<footer>
-  QUESTIONS? CONTACT: +1 (940)-279-3850
-</footer>
+        <!-- Subtitle block -->
+        <div class="subtitle-block">
+          <div class="subtitle-heading">Team Biography / History and Goal</div>
+          <div class="subtitle-line"></div>
+          <div class="subtitle-text">
+            Rising Sunset Robotics, also known in the VEX IQ world as Team 61434T,
+            is a dedicated team based in Irving, TX. Our goal is to grow as
+            engineers, innovators, and teammates while competing at the highest
+            level and representing our community with pride.
+          </div>
+        </div>
+      </section>
+    </main>
 
+    <!-- Bottom-left contact text -->
+    <div class="contact-footer">
+      <span>QUESTIONS?</span>
+      <span>CONTACT: +1 (940)-279-3850</span>
+    </div>
+  </div>
 </body>
 </html>
-
-
-
-🌅 Next Step
-I can now generate the other three pages (Meet the Team, Awards, Contact) in the exact same style so the whole site matches the look of your slide.
-Just tell me:
-Do you want the other pages to follow the same sunset gradient background, centered layout, and glowing text style?
