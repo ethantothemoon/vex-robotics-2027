@@ -1,1226 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rising Sunset Robotics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       BASE RESET & GLOBAL
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      /* ── Shared tokens ── */
-      --cream:        #f5e8d8;
-      --cream-dim:    rgba(245, 232, 216, 0.72);
-      --cream-faint:  rgba(245, 232, 216, 0.42);
-      --sand:         #e8c89a;
-      --black:        #000000;
-      --near-black:   #080808;
-      --dark:         #0a0a0a;
-
-      /* ── Home page ── */
-      --home-rust:    #c4583a;
-      --home-amber:   #d47c3a;
-      --home-deep:    #6b2010;
-      --home-mid:     #b5441e;
-
-      /* ── Team page ── */
-      --team-bg:      #080808;
-      --team-blue:    #1a1aff;
-      --team-teal:    #00c8c8;
-
-      /* ── Going Forward page ── */
-      --fwd-bg:       #050505;
-      --fwd-blue:     #0044dd;
-      --fwd-teal:     #00e5cc;
-      --fwd-footer:   #0055ff;
-
-      /* ── Awards page ── */
-      --aw-bg:        #050505;
-      --aw-red:       #c83020;
-      --aw-orange:    #e05030;
-
-      /* ── Typography sizes ── */
-      --text-xs:    0.72rem;
-      --text-sm:    0.82rem;
-      --text-base:  0.92rem;
-      --text-md:    1rem;
-      --text-lg:    1.15rem;
-      --text-xl:    1.4rem;
-    }
-
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      font-family: 'Barlow', sans-serif;
-      background: var(--black);
-      color: var(--cream);
-      -webkit-font-smoothing: antialiased;
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       GRAIN / TEXTURE UTILITY
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    .grain {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 3;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
-      opacity: 0.38;
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       PAGE ROUTER SYSTEM
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    /* All pages sit stacked; only .active is shown */
-    .page {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .page.active {
-      display: flex;
-    }
-
-    /* Page transition — fade + slight upward slide */
-    @keyframes pageEnter {
-      0%   { opacity: 0;   transform: translateY(16px); }
-      100% { opacity: 1;   transform: translateY(0);    }
-    }
-
-    .page.active {
-      animation: pageEnter 0.42s cubic-bezier(0.22, 0.68, 0, 1.2) both;
-    }
-
-    /* Staggered child reveals */
-    @keyframes revealUp {
-      0%   { opacity: 0; transform: translateY(22px); }
-      100% { opacity: 1; transform: translateY(0);    }
-    }
-
-    .rv  { opacity: 0; animation: revealUp 0.55s cubic-bezier(0.22, 0.68, 0, 1) forwards; }
-    .rv1 { animation-delay: 0.04s; }
-    .rv2 { animation-delay: 0.11s; }
-    .rv3 { animation-delay: 0.18s; }
-    .rv4 { animation-delay: 0.25s; }
-    .rv5 { animation-delay: 0.32s; }
-    .rv6 { animation-delay: 0.39s; }
-    .rv7 { animation-delay: 0.46s; }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       SHARED NAVIGATION
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    .nav {
-      position: relative;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      padding: 18px 46px;
-      flex-shrink: 0;
-    }
-
-    /* Left-most label (current page name) */
-    .nav-current-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: 0.82rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--cream);
-      cursor: pointer;
-      margin-right: auto;
-      transition: opacity 0.18s;
-      user-select: none;
-    }
-    .nav-current-label:hover { opacity: 0.65; }
-
-    /* Star accent used on team page */
-    .nav-star {
-      display: inline-block;
-      margin-left: 8px;
-      font-size: 1.1rem;
-      vertical-align: middle;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      list-style: none;
-      gap: 0;
-    }
-
-    .nav-links li {
-      display: flex;
-      align-items: center;
-    }
-
-    /* Pipe separator */
-    .nav-links li + li::before {
-      content: '';
-      display: block;
-      width: 1px;
-      height: 14px;
-      background: var(--cream-faint);
-      margin: 0 26px;
-    }
-
-    .nav-links a {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 0.76rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--cream);
-      text-decoration: none;
-      opacity: 0.80;
-      cursor: pointer;
-      transition: opacity 0.18s;
-      user-select: none;
-    }
-    .nav-links a:hover { opacity: 1; }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       SHARED FOOTER
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    .footer {
-      position: relative;
-      z-index: 200;
-      flex-shrink: 0;
-      padding: 14px 46px;
-    }
-
-    .footer p {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 0.80rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--cream);
-    }
-
-    .footer-dark  { background: var(--black); }
-    .footer-blue  { background: var(--fwd-footer); }
-    .footer-charcoal { background: #111; }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       PLACEHOLDER IMAGE COMPONENT
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    .img-placeholder {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(155deg,
-        #aad5f0 0%,
-        #76c4e0 35%,
-        #84c077 65%,
-        #5ea054 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .img-placeholder svg {
-      width: 58px;
-      opacity: 0.82;
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ████████ PAGE 1 — HOME
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    /* Background gradient — warm sunset */
-    #page-home {
-      background:
-        radial-gradient(ellipse 78% 62% at 73% 36%, #c8603a 0%, transparent 58%),
-        radial-gradient(ellipse 55% 78% at 17% 64%, #8b3520 0%, transparent 52%),
-        radial-gradient(ellipse 100% 100% at 50% 50%, var(--home-mid) 0%, var(--home-deep) 100%);
-    }
-
-    /* ── Decorative hatched circle (top-left) ── */
-    .home-deco-circle {
-      position: absolute;
-      top: 52px;
-      left: 22px;
-      width: 178px;
-      height: 178px;
-      opacity: 0.17;
-      z-index: 4;
-      pointer-events: none;
-    }
-
-    /* ── Decorative wave lines (right edge) ── */
-    .home-deco-waves {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 118px;
-      height: 100%;
-      opacity: 0.20;
-      z-index: 4;
-      pointer-events: none;
-    }
-
-    /* ── Main two-column layout ── */
-    .home-main {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      padding: 0 46px;
-      gap: 0;
-    }
-
-    /* Left column — giant title */
-    .home-col-left {
-      padding-right: 44px;
-    }
-
-    .home-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(4rem, 8.2vw, 8.2rem);
-      line-height: 0.89;
-      color: var(--cream);
-      text-transform: uppercase;
-      letter-spacing: -0.015em;
-    }
-
-    /* Right column — image + bio side by side */
-    .home-col-right {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 34px;
-    }
-
-    .home-img-frame {
-      width: 268px;
-      height: 226px;
-      border-radius: 14px;
-      overflow: hidden;
-      flex-shrink: 0;
-      box-shadow: 0 20px 64px rgba(0, 0, 0, 0.52);
-    }
-
-    .home-img-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .home-bio {
-      max-width: 300px;
-    }
-
-    .home-bio-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: 0.1em;
-      color: var(--sand);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .home-bio-text {
-      font-size: var(--text-base);
-      line-height: 1.76;
-      color: var(--cream-dim);
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ████████ PAGE 2 — MEET THE TEAM
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    #page-team {
-      background: var(--team-bg);
-    }
-
-    /* Atmospheric blobs */
-    .team-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(88px);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .team-blob-tl {
-      width: 420px; height: 420px;
-      background: radial-gradient(circle, rgba(26, 26, 255, 0.22) 0%, transparent 70%);
-      top: -100px; left: -100px;
-    }
-
-    .team-blob-tr {
-      width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(0, 200, 200, 0.14) 0%, transparent 70%);
-      top: -50px; right: 80px;
-    }
-
-    .team-blob-br {
-      width: 500px; height: 400px;
-      background: radial-gradient(circle, rgba(0, 200, 200, 0.10) 0%, transparent 70%);
-      bottom: -80px; right: -80px;
-    }
-
-    /* ── Main team content area ── */
-    .team-main {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      min-height: 0;
-      padding: 4px 40px 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 5-column grid matching the PDF layout */
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0 6px;
-      flex: 1;
-      min-height: 0;
-      align-items: start;
-    }
-
-    /* ── Individual member card ── */
-    .member-col {
-      display: flex;
-      flex-direction: column;
-      padding: 0 8px;
-      height: 100%;
-    }
-
-    /* Name at top */
-    .member-name-top {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(1.5rem, 2.8vw, 2.8rem);
-      text-transform: uppercase;
-      color: var(--cream);
-      line-height: 0.88;
-      margin-bottom: 9px;
-      flex-shrink: 0;
-    }
-
-    /* Outlined variant */
-    .member-name-top.outlined {
-      -webkit-text-stroke: 2px var(--cream);
-      color: transparent;
-    }
-
-    /* Photo frame */
-    .member-photo {
-      width: 100%;
-      aspect-ratio: 4 / 3.2;
-      border-radius: 10px;
-      overflow: hidden;
-      flex-shrink: 0;
-      margin-bottom: 8px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
-    }
-
-    .member-photo img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* Bio text */
-    .member-bio {
-      font-size: var(--text-xs);
-      line-height: 1.62;
-      color: var(--cream-dim);
-      flex-shrink: 0;
-    }
-
-    /* Name at bottom (Jaivik / Ethan) — outlined, pushed down */
-    .member-name-bottom {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(1.5rem, 2.8vw, 2.8rem);
-      text-transform: uppercase;
-      -webkit-text-stroke: 2px var(--cream);
-      color: transparent;
-      line-height: 0.88;
-      margin-top: auto;
-      padding-top: 8px;
-      flex-shrink: 0;
-    }
-
-    /* Second photo in a col (Jaivik's photo under Advik) */
-    .member-photo-lower {
-      width: 100%;
-      aspect-ratio: 4 / 3.2;
-      border-radius: 10px;
-      overflow: hidden;
-      flex-shrink: 0;
-      margin-top: 8px;
-      margin-bottom: 8px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
-    }
-
-    .member-photo-lower img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* Offset second row members downward for stagger effect */
-    .member-col.offset-down {
-      padding-top: 52px;
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ████████ PAGE 3 — GOING FORWARD
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    #page-forward {
-      background:
-        radial-gradient(ellipse 55% 45% at 8% 12%, rgba(0, 30, 100, 0.25) 0%, transparent 55%),
-        radial-gradient(ellipse 65% 55% at 88% 82%, rgba(0, 200, 180, 0.08) 0%, transparent 55%),
-        var(--fwd-bg);
-    }
-
-    /* Atmospheric blobs */
-    .fwd-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(110px);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .fwd-blob-bl {
-      width: 520px; height: 520px;
-      background: radial-gradient(circle, rgba(0, 50, 180, 0.20) 0%, transparent 70%);
-      bottom: -120px; left: -120px;
-    }
-
-    .fwd-blob-tr {
-      width: 360px; height: 360px;
-      background: radial-gradient(circle, rgba(0, 229, 204, 0.08) 0%, transparent 70%);
-      top: 30px; right: 40px;
-    }
-
-    /* ── Main 2x2 grid ── */
-    .fwd-main {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      padding: 18px 46px 6px;
-      gap: 14px 72px;
-    }
-
-    /* ── Shared cell ── */
-    .fwd-cell {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      overflow: hidden;
-    }
-
-    /* Large display headings */
-    .fwd-heading {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(2.8rem, 5.5vw, 5.4rem);
-      line-height: 0.86;
-      text-transform: uppercase;
-      color: var(--cream);
-      margin-bottom: 10px;
-    }
-
-    .fwd-sub-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 400;
-      font-size: var(--text-sm);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--cream-faint);
-      margin-bottom: 0;
-    }
-
-    .fwd-body {
-      font-size: var(--text-base);
-      line-height: 1.74;
-      color: var(--cream-dim);
-      max-width: 480px;
-    }
-
-    /* Full-width bottom row: SPONSORS & DONATIONS */
-    .fwd-sponsors-row {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 46px 10px;
-      flex-shrink: 0;
-    }
-
-    .fwd-sponsors-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(3rem, 7.2vw, 7rem);
-      line-height: 0.86;
-      text-transform: uppercase;
-      text-align: center;
-      color: var(--cream);
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ████████ PAGE 4 — AWARDS
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    #page-awards {
-      background:
-        radial-gradient(ellipse 62% 48% at 4% 88%, rgba(200, 48, 32, 0.55) 0%, transparent 50%),
-        radial-gradient(ellipse 48% 42% at 96% 52%, rgba(224, 80, 48, 0.42) 0%, transparent 45%),
-        var(--aw-bg);
-    }
-
-    /* Atmospheric blobs */
-    .aw-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(96px);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .aw-blob-bl {
-      width: 440px; height: 440px;
-      background: radial-gradient(circle, rgba(200, 48, 32, 0.45) 0%, transparent 70%);
-      bottom: -100px; left: -100px;
-    }
-
-    .aw-blob-tr {
-      width: 320px; height: 280px;
-      background: radial-gradient(circle, rgba(224, 80, 48, 0.32) 0%, transparent 70%);
-      top: 20px; right: -40px;
-    }
-
-    /* ── Main two-column layout ── */
-    .aw-main {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: start;
-      padding: 28px 46px 10px;
-      gap: 44px 88px;
-    }
-
-    /* Left col */
-    .aw-left { display: flex; flex-direction: column; }
-
-    /* THINK & TEAMWORK — outlined stroke heading */
-    .aw-hero-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(3.5rem, 7.2vw, 7rem);
-      line-height: 0.84;
-      text-transform: uppercase;
-      -webkit-text-stroke: 2.5px var(--cream);
-      color: transparent;
-      margin-bottom: 20px;
-    }
-
-    .aw-body {
-      font-size: var(--text-base);
-      line-height: 1.74;
-      color: var(--cream-dim);
-    }
-
-    /* Right col */
-    .aw-right {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .aw-body-right {
-      font-size: var(--text-base);
-      line-height: 1.74;
-      color: var(--cream-dim);
-      margin-bottom: auto;
-    }
-
-    /* JOURNEY — large outlined, bottom-right */
-    .aw-journey {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: clamp(3rem, 6.8vw, 6.5rem);
-      text-transform: uppercase;
-      -webkit-text-stroke: 2.5px var(--cream);
-      color: transparent;
-      line-height: 0.84;
-      align-self: flex-end;
-      margin-top: 28px;
-    }
-  </style>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       RESPONSIVE BREAKPOINTS
-  ═══════════════════════════════════════════════════════════════ -->
-  <style>
-    @media (max-width: 980px) {
-      html, body { overflow: auto; }
-
-      .page {
-        position: relative;
-        inset: auto;
-        min-height: 100vh;
-        display: none;
-        flex-direction: column;
-      }
-      .page.active { display: flex; }
-
-      /* Home */
-      .home-main {
-        grid-template-columns: 1fr;
-        padding: 28px 24px 48px;
-        gap: 32px;
-      }
-      .home-col-left { padding-right: 0; }
-      .home-col-right { flex-direction: column; }
-      .home-img-frame { width: 100%; height: 200px; }
-
-      /* Team */
-      .team-grid { grid-template-columns: repeat(2, 1fr); }
-      .member-col.offset-down { padding-top: 0; }
-      .team-main { padding: 16px 20px 0; overflow-y: auto; }
-
-      /* Forward */
-      .fwd-main {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        padding: 24px 24px 16px;
-        gap: 24px;
-      }
-
-      /* Awards */
-      .aw-main {
-        grid-template-columns: 1fr;
-        padding: 24px 24px 16px;
-        gap: 24px;
-      }
-      .aw-right { height: auto; }
-
-      /* Nav */
-      .nav {
-        padding: 14px 22px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .nav-links li + li::before { margin: 0 16px; }
-
-      /* Footer */
-      .footer { padding: 14px 22px; }
-    }
-
-    @media (max-width: 540px) {
-      .team-grid { grid-template-columns: 1fr; }
-      .home-title { font-size: 3.6rem; }
-      .fwd-heading { font-size: 2.4rem; }
-      .aw-hero-title { font-size: 3rem; }
-      .aw-journey { font-size: 2.6rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rising Sunset Robotics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #6B3410 0%, #8B4513 15%, #A0522D 30%, #CD853F 60%, #DAA520 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Wavy decorative lines - LEFT SIDE */
+        .deco-left {
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            width: 80px;
+            height: 350px;
+            pointer-events: none;
+        }
+
+        .deco-left svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Wavy decorative lines - RIGHT SIDE */
+        .deco-right {
+            position: absolute;
+            right: 20px;
+            top: 80px;
+            width: 100px;
+            height: 350px;
+            pointer-events: none;
+        }
+
+        .deco-right svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* HEADER */
+        header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px 50px;
+            border: 3px solid #4B0082;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* MAIN CONTENT */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 100px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .content-container {
+            display: flex;
+            gap: 100px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ILLUSTRATION BOX */
+        .illustration-box {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .illustration {
+            width: 320px;
+            height: 280px;
+            background: linear-gradient(180deg, #87CEEB 0%, #ADD8E6 40%, #90EE90 65%, #76D94A 100%);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Cloud */
+        .cloud {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 50px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: inset -5px -5px 15px rgba(200, 200, 200, 0.3);
+        }
+
+        /* Wavy grass */
+        .grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: #90EE90;
+        }
+
+        .grass::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 40"><path d="M0,20 Q40,0 80,20 T160,20 T240,20 T320,20" stroke="none" fill="%2376D94A"/><path d="M0,20 Q40,10 80,20 T160,20 T240,20 T320,20" stroke="none" fill="%2390EE90"/></svg>');
+            background-size: 160px 40px;
+            background-repeat: repeat-x;
+        }
+
+        /* TEXT CONTENT */
+        .text-content {
+            flex: 1;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-content h1 {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .text-content p {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #000;
+            color: white;
+            padding: 25px 50px;
+            border-top: 3px solid #4B0082;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-questions {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        .footer-contact {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .content-container {
+                flex-direction: column;
+                gap: 50px;
+            }
+
+            .text-content h1 {
+                font-size: 56px;
+            }
+
+            main {
+                padding: 60px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 15px;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .deco-left, .deco-right {
+                opacity: 0.3;
+            }
+
+            .text-content h1 {
+                font-size: 40px;
+            }
+
+            .text-content p {
+                font-size: 16px;
+            }
+
+            .illustration {
+                width: 250px;
+                height: 220px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
-<!-- ════════════════════════════════════════════════════════════════
-     PAGE 1 — HOME
-════════════════════════════════════════════════════════════════ -->
-<div id="page-home" class="page active">
-
-  <!-- Texture -->
-  <div class="grain"></div>
-
-  <!-- Decorative hatched circle — top left -->
-  <svg class="home-deco-circle" viewBox="0 0 178 178" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Concentric rings -->
-    <circle cx="89" cy="89" r="82"  stroke="white" stroke-width="1.2"/>
-    <circle cx="89" cy="89" r="65"  stroke="white" stroke-width="1.2"/>
-    <circle cx="89" cy="89" r="48"  stroke="white" stroke-width="1.2"/>
-    <circle cx="89" cy="89" r="31"  stroke="white" stroke-width="1.2"/>
-    <circle cx="89" cy="89" r="14"  stroke="white" stroke-width="1.2"/>
-    <!-- Cross lines -->
-    <line x1="6"  y1="89" x2="172" y2="89"  stroke="white" stroke-width="0.9"/>
-    <line x1="89" y1="6"  x2="89"  y2="172" stroke="white" stroke-width="0.9"/>
-    <!-- Diagonal hatch lines -->
-    <line x1="25" y1="25" x2="153" y2="153" stroke="white" stroke-width="0.5" opacity="0.45"/>
-    <line x1="153" y1="25" x2="25" y2="153" stroke="white" stroke-width="0.5" opacity="0.45"/>
-    <line x1="10"  y1="55" x2="168" y2="123" stroke="white" stroke-width="0.4" opacity="0.3"/>
-    <line x1="10"  y1="123" x2="168" y2="55" stroke="white" stroke-width="0.4" opacity="0.3"/>
-    <line x1="55"  y1="10" x2="123" y2="168" stroke="white" stroke-width="0.4" opacity="0.3"/>
-    <line x1="123" y1="10" x2="55"  y2="168" stroke="white" stroke-width="0.4" opacity="0.3"/>
-  </svg>
-
-  <!-- Decorative wave lines — right edge -->
-  <svg class="home-deco-waves" viewBox="0 0 118 600" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M98 0 Q48 75 98 150 Q148 225 98 300 Q48 375 98 450 Q148 525 98 600"   stroke="white" stroke-width="1.7" fill="none"/>
-    <path d="M77 0 Q27 75 77 150 Q127 225 77 300 Q27 375 77 450 Q127 525 77 600"   stroke="white" stroke-width="1.7" fill="none"/>
-    <path d="M56 0 Q6 75 56 150 Q106 225 56 300 Q6 375 56 450 Q106 525 56 600"    stroke="white" stroke-width="1.7" fill="none"/>
-    <path d="M35 0 Q-15 75 35 150 Q85 225 35 300 Q-15 375 35 450 Q85 525 35 600"  stroke="white" stroke-width="1.7" fill="none"/>
-    <path d="M14 0 Q-36 75 14 150 Q64 225 14 300 Q-36 375 14 450 Q64 525 14 600"  stroke="white" stroke-width="1.7" fill="none"/>
-  </svg>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <span class="nav-current-label" onclick="goTo('home')">Home</span>
-    <ul class="nav-links">
-      <li><a onclick="goTo('team')">Meet the Team</a></li>
-      <li><a onclick="goTo('awards')">Awards</a></li>
-      <li><a onclick="goTo('forward')">Going Forward</a></li>
-    </ul>
-  </nav>
-
-  <!-- Main content -->
-  <main class="home-main">
-
-    <!-- Left: Giant title -->
-    <div class="home-col-left rv rv1">
-      <h1 class="home-title">Rising<br>Sunset<br>Robotics</h1>
+    <!-- LEFT DECORATIVE WAVES -->
+    <div class="deco-left">
+        <svg viewBox="0 0 80 350" xmlns="http://www.w3.org/2000/svg">
+            <!-- Diagonal lines pattern -->
+            <g stroke="white" stroke-width="2" opacity="0.7">
+                <line x1="10" y1="0" x2="0" y2="40" />
+                <line x1="20" y1="0" x2="10" y2="40" />
+                <line x1="30" y1="0" x2="20" y2="40" />
+                <line x1="40" y1="0" x2="30" y2="40" />
+                <line x1="50" y1="0" x2="40" y2="40" />
+                <line x1="60" y1="0" x2="50" y2="40" />
+                <line x1="70" y1="0" x2="60" y2="40" />
+                
+                <line x1="10" y1="40" x2="0" y2="80" />
+                <line x1="20" y1="40" x2="10" y2="80" />
+                <line x1="30" y1="40" x2="20" y2="80" />
+                <line x1="40" y1="40" x2="30" y2="80" />
+                <line x1="50" y1="40" x2="40" y2="80" />
+                <line x1="60" y1="40" x2="50" y2="80" />
+                <line x1="70" y1="40" x2="60" y2="80" />
+                
+                <line x1="10" y1="80" x2="0" y2="120" />
+                <line x1="20" y1="80" x2="10" y2="120" />
+                <line x1="30" y1="80" x2="20" y2="120" />
+                <line x1="40" y1="80" x2="30" y2="120" />
+                <line x1="50" y1="80" x2="40" y2="120" />
+                <line x1="60" y1="80" x2="50" y2="120" />
+                <line x1="70" y1="80" x2="60" y2="120" />
+                
+                <line x1="10" y1="120" x2="0" y2="160" />
+                <line x1="20" y1="120" x2="10" y2="160" />
+                <line x1="30" y1="120" x2="20" y2="160" />
+                <line x1="40" y1="120" x2="30" y2="160" />
+                <line x1="50" y1="120" x2="40" y2="160" />
+                <line x1="60" y1="120" x2="50" y2="160" />
+                <line x1="70" y1="120" x2="60" y2="160" />
+                
+                <line x1="10" y1="160" x2="0" y2="200" />
+                <line x1="20" y1="160" x2="10" y2="200" />
+                <line x1="30" y1="160" x2="20" y2="200" />
+                <line x1="40" y1="160" x2="30" y2="200" />
+                <line x1="50" y1="160" x2="40" y2="200" />
+                <line x1="60" y1="160" x2="50" y2="200" />
+                <line x1="70" y1="160" x2="60" y2="200" />
+                
+                <line x1="10" y1="200" x2="0" y2="240" />
+                <line x1="20" y1="200" x2="10" y2="240" />
+                <line x1="30" y1="200" x2="20" y2="240" />
+                <line x1="40" y1="200" x2="30" y2="240" />
+                <line x1="50" y1="200" x2="40" y2="240" />
+                <line x1="60" y1="200" x2="50" y2="240" />
+                <line x1="70" y1="200" x2="60" y2="240" />
+                
+                <line x1="10" y1="240" x2="0" y2="280" />
+                <line x1="20" y1="240" x2="10" y2="280" />
+                <line x1="30" y1="240" x2="20" y2="280" />
+                <line x1="40" y1="240" x2="30" y2="280" />
+                <line x1="50" y1="240" x2="40" y2="280" />
+                <line x1="60" y1="240" x2="50" y2="280" />
+                <line x1="70" y1="240" x2="60" y2="280" />
+                
+                <line x1="10" y1="280" x2="0" y2="320" />
+                <line x1="20" y1="280" x2="10" y2="320" />
+                <line x1="30" y1="280" x2="20" y2="320" />
+                <line x1="40" y1="280" x2="30" y2="320" />
+                <line x1="50" y1="280" x2="40" y2="320" />
+                <line x1="60" y1="280" x2="50" y2="320" />
+                <line x1="70" y1="280" x2="60" y2="320" />
+            </g>
+        </svg>
     </div>
 
-    <!-- Right: image + bio -->
-    <div class="home-col-right rv rv3">
-      <!--
-        ╔═══════════════════════════════════════════╗
-        ║  TO ADD YOUR TEAM PHOTO:                  ║
-        ║  Replace the .img-placeholder div with:   ║
-        ║  <img src="photo.jpg" alt="Team photo">   ║
-        ║  inside .home-img-frame below             ║
-        ╚═══════════════════════════════════════════╝
-      -->
-      <div class="home-img-frame">
-        <div class="img-placeholder">
-          <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-            <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-            <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-            <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-            <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-          </svg>
+    <!-- RIGHT DECORATIVE WAVES -->
+    <div class="deco-right">
+        <svg viewBox="0 0 100 350" xmlns="http://www.w3.org/2000/svg">
+            <!-- Wavy curved lines -->
+            <g stroke="white" stroke-width="3" fill="none" opacity="0.8">
+                <path d="M 20,0 Q 40,15 20,30 T 20,60" />
+                <path d="M 30,0 Q 50,15 30,30 T 30,60" />
+                <path d="M 40,0 Q 60,15 40,30 T 40,60" />
+                <path d="M 50,0 Q 70,15 50,30 T 50,60" />
+                <path d="M 60,0 Q 80,15 60,30 T 60,60" />
+                <path d="M 70,0 Q 90,15 70,30 T 70,60" />
+                
+                <path d="M 20,60 Q 40,75 20,90 T 20,120" />
+                <path d="M 30,60 Q 50,75 30,90 T 30,120" />
+                <path d="M 40,60 Q 60,75 40,90 T 40,120" />
+                <path d="M 50,60 Q 70,75 50,90 T 50,120" />
+                <path d="M 60,60 Q 80,75 60,90 T 60,120" />
+                <path d="M 70,60 Q 90,75 70,90 T 70,120" />
+                
+                <path d="M 20,120 Q 40,135 20,150 T 20,180" />
+                <path d="M 30,120 Q 50,135 30,150 T 30,180" />
+                <path d="M 40,120 Q 60,135 40,150 T 40,180" />
+                <path d="M 50,120 Q 70,135 50,150 T 50,180" />
+                <path d="M 60,120 Q 80,135 60,150 T 60,180" />
+                <path d="M 70,120 Q 90,135 70,150 T 70,180" />
+                
+                <path d="M 20,180 Q 40,195 20,210 T 20,240" />
+                <path d="M 30,180 Q 50,195 30,210 T 30,240" />
+                <path d="M 40,180 Q 60,195 40,210 T 40,240" />
+                <path d="M 50,180 Q 70,195 50,210 T 50,240" />
+                <path d="M 60,180 Q 80,195 60,210 T 60,240" />
+                <path d="M 70,180 Q 90,195 70,210 T 70,240" />
+                
+                <path d="M 20,240 Q 40,255 20,270 T 20,300" />
+                <path d="M 30,240 Q 50,255 30,270 T 30,300" />
+                <path d="M 40,240 Q 60,255 40,270 T 40,300" />
+                <path d="M 50,240 Q 70,255 50,270 T 50,300" />
+                <path d="M 60,240 Q 80,255 60,270 T 60,300" />
+                <path d="M 70,240 Q 90,255 70,270 T 70,300" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">HOME</div>
+        <nav>
+            <a href="#team">MEET THE TEAM</a>
+            <a href="#awards">AWARDS</a>
+            <a href="#forward">GOING FORWARD</a>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="content-container">
+            <div class="illustration-box">
+                <div class="illustration">
+                    <div class="cloud"></div>
+                    <div class="grass"></div>
+                </div>
+            </div>
+            <div class="text-content">
+                <h1>RISING SUNSET<br>ROBOTICS</h1>
+                <p>Team Biography/History and Goal</p>
+            </div>
         </div>
-      </div>
+    </main>
 
-      <div class="home-bio">
-        <p class="home-bio-label">Team Biography / History &amp; Goal</p>
-        <p class="home-bio-text">
-          Add your team's story here — how Rising Sunset Robotics got started,
-          what drives you, and the goals you're working toward this season.
-        </p>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer footer-charcoal">
-    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
-  </footer>
-</div><!-- /page-home -->
-
-
-<!-- ════════════════════════════════════════════════════════════════
-     PAGE 2 — MEET THE TEAM
-════════════════════════════════════════════════════════════════ -->
-<div id="page-team" class="page">
-
-  <!-- Texture -->
-  <div class="grain"></div>
-
-  <!-- Atmospheric color blobs -->
-  <div class="team-blob team-blob-tl"></div>
-  <div class="team-blob team-blob-tr"></div>
-  <div class="team-blob team-blob-br"></div>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <span class="nav-current-label" onclick="goTo('team')">
-      Meet the Team <span class="nav-star">✦</span>
-    </span>
-    <ul class="nav-links">
-      <li><a onclick="goTo('home')">Home</a></li>
-      <li><a onclick="goTo('forward')">Going Forward</a></li>
-      <li><a onclick="goTo('awards')">Awards</a></li>
-    </ul>
-  </nav>
-
-  <!-- Team grid -->
-  <main class="team-main">
-    <div class="team-grid">
-
-      <!-- ── COLUMN 1: ADVIK (name top) + JAIVIK name (bottom) ── -->
-      <div class="member-col rv rv1">
-        <div class="member-name-top">Advik</div>
-        <div class="member-photo">
-          <!--
-            SWAP PHOTO: Replace .img-placeholder with
-            <img src="advik.jpg" alt="Advik">
-          -->
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-questions">
+            QUESTIONS?<br>
+            CONTACT: +1 (840)-279-3850 OR
         </div>
-        <p class="member-bio">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut labore.
-        </p>
-        <!-- Jaivik name pushed to bottom -->
-        <div class="member-name-bottom">Jaivik</div>
-      </div>
-
-      <!-- ── COLUMN 2: Jaivik photo (offset down) ── -->
-      <div class="member-col offset-down rv rv2">
-        <div class="member-photo">
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
+        <div class="footer-contact">
+            EMAIL: info@risingsunsetrobotics.com
         </div>
-        <p class="member-bio">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut labore et dolore.
-        </p>
-      </div>
-
-      <!-- ── COLUMN 3: AYUSH (center, outlined name) — two photos stacked ── -->
-      <div class="member-col rv rv3">
-        <div class="member-name-top outlined">Ayush</div>
-        <!-- Top photo -->
-        <div class="member-photo">
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
-        </div>
-        <p class="member-bio">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut labore.
-        </p>
-        <!-- Second photo -->
-        <div class="member-photo-lower">
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
-        </div>
-        <p class="member-bio" style="margin-top:6px;">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut.
-        </p>
-      </div>
-
-      <!-- ── COLUMN 4: RITVIK (name top) + ETHAN name (bottom) ── -->
-      <div class="member-col rv rv4">
-        <div class="member-name-top">Ritvik</div>
-        <div class="member-photo">
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
-        </div>
-        <p class="member-bio">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut labore.
-        </p>
-        <!-- Ethan name pushed to bottom -->
-        <div class="member-name-bottom">Ethan</div>
-      </div>
-
-      <!-- ── COLUMN 5: Ethan photo (offset down) ── -->
-      <div class="member-col offset-down rv rv5">
-        <div class="member-photo">
-          <div class="img-placeholder">
-            <svg viewBox="0 0 80 60" fill="none">
-              <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-              <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
-              <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
-              <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
-              <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
-            </svg>
-          </div>
-        </div>
-        <p class="member-bio">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut labore.
-        </p>
-      </div>
-
-    </div><!-- /team-grid -->
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer footer-dark">
-    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
-  </footer>
-</div><!-- /page-team -->
-
-
-<!-- ════════════════════════════════════════════════════════════════
-     PAGE 3 — GOING FORWARD
-════════════════════════════════════════════════════════════════ -->
-<div id="page-forward" class="page">
-
-  <!-- Texture -->
-  <div class="grain"></div>
-
-  <!-- Atmospheric blobs -->
-  <div class="fwd-blob fwd-blob-bl"></div>
-  <div class="fwd-blob fwd-blob-tr"></div>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <span class="nav-current-label" onclick="goTo('forward')">Going Forward</span>
-    <ul class="nav-links">
-      <li><a onclick="goTo('awards')">Awards</a></li>
-      <li><a onclick="goTo('team')">Meet the Team</a></li>
-      <li><a onclick="goTo('home')">Home</a></li>
-    </ul>
-  </nav>
-
-  <!-- Main 2×2 grid -->
-  <main class="fwd-main">
-
-    <!-- Top-left: NEW YEAR, NEW US -->
-    <div class="fwd-cell rv rv1">
-      <h2 class="fwd-heading">New Year,<br>New Us</h2>
-      <p class="fwd-sub-label">New Mindset</p>
-    </div>
-
-    <!-- Top-right: Sponsors body copy -->
-    <div class="fwd-cell rv rv2">
-      <p class="fwd-body">
-        How we are getting money and how sponsorships work — including
-        levels of sponsoring — as well as a link if anybody wants to donate.
-        Add your full fundraising strategy, sponsorship tier details, and
-        donation link here.
-      </p>
-    </div>
-
-    <!-- Bottom-left: FRESH TALENT -->
-    <div class="fwd-cell rv rv3">
-      <h2 class="fwd-heading">Fresh<br>Talent</h2>
-      <p class="fwd-body" style="margin-top:10px;">
-        If needed, we could recruit new candidates. Add information about
-        open positions, tryout dates, and how prospective members can apply
-        to join Rising Sunset Robotics.
-      </p>
-    </div>
-
-    <!-- Bottom-right: placeholder for future content -->
-    <div class="fwd-cell rv rv4">
-      <!-- Reserved for upcoming announcements -->
-    </div>
-
-  </main>
-
-  <!-- Full-width SPONSORS & DONATIONS heading -->
-  <div class="fwd-sponsors-row rv rv5">
-    <h2 class="fwd-sponsors-title">Sponsors &amp;<br>Donations</h2>
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer footer-blue">
-    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
-  </footer>
-</div><!-- /page-forward -->
-
-
-<!-- ════════════════════════════════════════════════════════════════
-     PAGE 4 — AWARDS
-════════════════════════════════════════════════════════════════ -->
-<div id="page-awards" class="page">
-
-  <!-- Texture -->
-  <div class="grain"></div>
-
-  <!-- Atmospheric blobs -->
-  <div class="aw-blob aw-blob-bl"></div>
-  <div class="aw-blob aw-blob-tr"></div>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <span class="nav-current-label" onclick="goTo('awards')">Awards</span>
-    <ul class="nav-links">
-      <li><a onclick="goTo('team')">Meet the Team</a></li>
-      <li><a onclick="goTo('home')">Home</a></li>
-      <li><a onclick="goTo('forward')">Going Forward</a></li>
-    </ul>
-  </nav>
-
-  <!-- Main content -->
-  <main class="aw-main">
-
-    <!-- Left: THINK & TEAMWORK + body -->
-    <div class="aw-left rv rv1">
-      <h2 class="aw-hero-title">Think &amp;<br>Teamwork</h2>
-      <p class="aw-body">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-        aliquip ex ea commodo consequat. Duis aute irure dolor in
-        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident.
-      </p>
-    </div>
-
-    <!-- Right: body text + JOURNEY -->
-    <div class="aw-right rv rv2">
-      <p class="aw-body-right">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-        aliquip ex ea commodo consequat. Duis aute irure dolor in
-        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident.
-      </p>
-      <div class="aw-journey">Journey</div>
-    </div>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer footer-charcoal">
-    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
-  </footer>
-</div><!-- /page-awards -->
-
-
-<!-- ════════════════════════════════════════════════════════════════
-     ROUTER — JavaScript
-════════════════════════════════════════════════════════════════ -->
-<script>
-  'use strict';
-
-  // ── Page registry ──────────────────────────────────────────────
-  const PAGE_IDS = ['home', 'team', 'forward', 'awards'];
-
-  const pageEls = {};
-  PAGE_IDS.forEach(id => {
-    pageEls[id] = document.getElementById('page-' + id);
-  });
-
-  // ── Navigation function ────────────────────────────────────────
-  function goTo(id) {
-    if (!pageEls[id]) return;
-
-    // 1. Hide all pages
-    PAGE_IDS.forEach(pid => {
-      pageEls[pid].classList.remove('active');
-    });
-
-    // 2. Show target
-    const target = pageEls[id];
-    target.classList.add('active');
-
-    // 3. Re-trigger stagger animations on the new page
-    //    (reset by temporarily clearing the animation)
-    target.querySelectorAll('.rv').forEach(el => {
-      el.style.animation = 'none';
-      // Force reflow so the browser registers the change
-      void el.offsetWidth;
-      el.style.animation = '';
-    });
-
-    // 4. Update URL hash (nice for sharing / browser back)
-    history.replaceState(null, '', '#' + id);
-  }
-
-  // ── Expose globally (used in onclick attributes) ───────────────
-  window.goTo = goTo;
-
-  // ── Handle direct URL hash on load ────────────────────────────
-  (function handleHash() {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && PAGE_IDS.includes(hash)) {
-      goTo(hash);
-    }
-  })();
-
-  // ── Handle browser back/forward ────────────────────────────────
-  window.addEventListener('hashchange', function () {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && PAGE_IDS.includes(hash)) {
-      goTo(hash);
-    }
-  });
-
-  // ── Keyboard shortcuts (1-4) — handy for presentations ─────────
-  document.addEventListener('keydown', function (e) {
-    const map = { '1': 'home', '2': 'team', '3': 'forward', '4': 'awards' };
-    if (map[e.key]) goTo(map[e.key]);
-  });
-</script>
-
+    </footer>
 </body>
+</html>
 </html>
