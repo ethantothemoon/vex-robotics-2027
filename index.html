@@ -1,337 +1,137 @@
-<!DOCTYPE html>
+Absolutely — now that I’ve seen the style you’re going for, I can match it exactly:
+clean sunset gradient, centered title, tabs across the top, and a layout that feels like your slide.
+Here’s a fully polished Rising Sunset Robotics homepage that looks like the image you uploaded — and you can paste this straight into GitHub as index.html.
+I’ll then give you the matching Meet the Team, Awards, and Contact pages so all four tabs work seamlessly.
 
+🌅 RISING SUNSET ROBOTICS — HOME PAGE (matches your design)
+index.html
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rising Sunset Robotics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Professional Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(to bottom, #ff4500, #ff7b00, #0d0d0d);
+      color: white;
+      text-align: center;
+    }
 
-```
-:root {
-  --sand:  #e8c89a;
-  --cream: #f5e8d8;
-  --dark:  #0a0a0a;
-}
+    /* NAV BAR */
+    header {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+    }
 
-html, body {
-  height: 100%;
-  font-family: 'Barlow', sans-serif;
-  background: var(--dark);
-  overflow-x: hidden;
-}
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 5px;
+      transition: 0.3s;
+    }
 
-/* ════════════════════════════
-   PAGE WRAPPER — fills viewport
-════════════════════════════ */
-.page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  min-height: 0;
-}
+    nav a:hover {
+      color: #ffe0b3;
+    }
 
-/* ════════════════════════════
-   BACKGROUND
-════════════════════════════ */
-.hero-bg {
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 70% 40%, #c8603a 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 20% 60%, #8b3520 0%, transparent 55%),
-    radial-gradient(ellipse 100% 100% at 50% 50%, #b5441e 0%, #6b2010 100%);
-  z-index: 0;
-}
-.hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
-  opacity: 0.35;
-  pointer-events: none;
-}
+    /* Sliding underline */
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      height: 3px;
+      background: white;
+      transition: width 0.3s ease;
+    }
 
-/* ════════════════════════════
-   DECORATIVE SHAPES
-════════════════════════════ */
-.deco {
-  position: fixed;
-  z-index: 1;
-  pointer-events: none;
-}
-.deco-circle {
-  top: 60px; left: 28px;
-  width: 170px; height: 170px;
-  opacity: 0.18;
-}
-.deco-waves {
-  top: 0; right: 0;
-  width: 120px; height: 100vh;
-  opacity: 0.22;
-}
+    nav a:hover::after,
+    nav a.active::after {
+      width: 100%;
+    }
 
-/* ════════════════════════════
-   NAV
-════════════════════════════ */
-nav {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  padding: 20px 48px;
-  flex-shrink: 0;
-}
-.nav-home {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 1rem;
-  letter-spacing: 0.14em;
-  color: var(--cream);
-  text-transform: uppercase;
-  text-decoration: none;
-  margin-right: auto;
-}
-.nav-links {
-  display: flex;
-  align-items: center;
-  list-style: none;
-}
-.nav-links li { display: flex; align-items: center; }
-.nav-links li + li::before {
-  content: '';
-  display: block;
-  width: 1px; height: 16px;
-  background: rgba(245,232,216,0.4);
-  margin: 0 28px;
-}
-.nav-links a {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
-  color: var(--cream);
-  text-transform: uppercase;
-  text-decoration: none;
-  opacity: 0.88;
-  transition: opacity 0.2s;
-}
-.nav-links a:hover { opacity: 1; text-decoration: underline; }
+    nav a.active {
+      color: #ffffff;
+      font-weight: 700;
+    }
 
-/* ════════════════════════════
-   MAIN CONTENT — landscape two-column
-════════════════════════════ */
-main {
-  position: relative;
-  z-index: 10;
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  padding: 0 48px;
-}
+    /* MAIN TITLE */
+    .title {
+      margin-top: 80px;
+      font-size: 3.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
 
-/* ── LEFT: Big title ── */
-.col-title {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-right: 48px;
-  animation: fadeUp 0.65s ease both;
-}
+    /* SUBTITLE BOX */
+    .subtitle-box {
+      margin: 40px auto;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 25px 40px;
+      border-radius: 12px;
+      width: 70%;
+      max-width: 700px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+    }
 
-h1 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: clamp(3.8rem, 7.5vw, 7.5rem);
-  line-height: 0.92;
-  color: var(--cream);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-}
-
-/* ── RIGHT: image + bio side by side ── */
-.col-right {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 36px;
-  animation: fadeUp 0.65s 0.15s ease both;
-}
-
-.hero-image {
-  width: 260px;
-  height: 220px;
-  border-radius: 12px;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 16px 56px rgba(0,0,0,0.45);
-}
-.hero-image img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.hero-image-placeholder {
-  width: 100%; height: 100%;
-  background: linear-gradient(160deg, #b0d8f0 0%, #7ec8e3 40%, #88c57a 70%, #6aaf5e 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-bio { max-width: 340px; }
-.hero-bio-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.09em;
-  color: var(--sand);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.hero-bio p {
-  font-size: 0.97rem;
-  line-height: 1.7;
-  color: rgba(245,232,216,0.78);
-}
-
-/* ════════════════════════════
-   FOOTER
-════════════════════════════ */
-footer {
-  position: relative;
-  z-index: 10;
-  background: #000;
-  padding: 16px 48px;
-  flex-shrink: 0;
-}
-footer p {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
-  letter-spacing: 0.12em;
-  color: var(--cream);
-  text-transform: uppercase;
-}
-
-/* ════════════════════════════
-   ANIMATION
-════════════════════════════ */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ════════════════════════════
-   RESPONSIVE (narrow / mobile)
-════════════════════════════ */
-@media (max-width: 860px) {
-  .page { height: auto; min-height: 100vh; }
-  main {
-    grid-template-columns: 1fr;
-    padding: 32px 24px 48px;
-    gap: 36px;
-  }
-  .col-title { padding-right: 0; }
-  .col-right { flex-direction: column; align-items: flex-start; }
-  .hero-image { width: 100%; height: 200px; }
-  nav { padding: 16px 24px; flex-wrap: wrap; gap: 12px; }
-  footer { padding: 16px 24px; }
-  .deco-circle { width: 110px; height: 110px; top: 50px; left: 10px; }
-}
-```
-
+    /* CONTACT BAR */
+    footer {
+      margin-top: 100px;
+      background: black;
+      padding: 20px;
+      font-size: 1rem;
+      color: white;
+    }
   </style>
 </head>
+
 <body>
 
-<div class="page">
-
-  <!-- Background -->
-
-  <div class="hero-bg"></div>
-
-  <!-- Deco: hatched circle (top-left) -->
-
-  <svg class="deco deco-circle" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="80" cy="80" r="72" stroke="white" stroke-width="1.4"/>
-    <circle cx="80" cy="80" r="57" stroke="white" stroke-width="1.4"/>
-    <circle cx="80" cy="80" r="42" stroke="white" stroke-width="1.4"/>
-    <circle cx="80" cy="80" r="27" stroke="white" stroke-width="1.4"/>
-    <line x1="8"  y1="80" x2="152" y2="80" stroke="white" stroke-width="1"/>
-    <line x1="80" y1="8"  x2="80"  y2="152" stroke="white" stroke-width="1"/>
-  </svg>
-
-  <!-- Deco: wavy lines (right edge) -->
-
-  <svg class="deco deco-waves" viewBox="0 0 120 600" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M100 0 Q50 75 100 150 Q150 225 100 300 Q50 375 100 450 Q150 525 100 600" stroke="white" stroke-width="2" fill="none"/>
-    <path d="M78  0 Q28 75  78 150 Q128 225  78 300 Q28 375  78 450 Q128 525  78 600" stroke="white" stroke-width="2" fill="none"/>
-    <path d="M56  0 Q6  75  56 150 Q106 225  56 300 Q6  375  56 450 Q106 525  56 600" stroke="white" stroke-width="2" fill="none"/>
-    <path d="M34  0 Q-16 75 34 150 Q84 225  34 300 Q-16 375 34 450 Q84 525  34 600" stroke="white" stroke-width="2" fill="none"/>
-    <path d="M12  0 Q-38 75 12 150 Q62 225  12 300 Q-38 375 12 450 Q62 525  12 600" stroke="white" stroke-width="2" fill="none"/>
-  </svg>
-
-  <!-- Nav -->
-
+<header>
   <nav>
-    <a href="#" class="nav-home">Home</a>
-    <ul class="nav-links">
-      <li><a href="#team">Meet the Team</a></li>
-      <li><a href="#awards">Awards</a></li>
-      <li><a href="#forward">Going Forward</a></li>
-    </ul>
+    <a href="index.html" class="active">HOME</a>
+    <a href="team.html">MEET THE TEAM</a>
+    <a href="awards.html">AWARDS</a>
+    <a href="contact.html">CONTACT</a>
   </nav>
+</header>
 
-  <!-- Main two-column landscape layout -->
+<h1 class="title">RISING SUNSET ROBOTICS</h1>
 
-  <main>
-
-```
-<!-- LEFT: Title -->
-<div class="col-title">
-  <h1>Rising<br>Sunset<br>Robotics</h1>
+<div class="subtitle-box">
+  Team Biography / History and Goal
 </div>
 
-<!-- RIGHT: Image + Bio -->
-<div class="col-right">
-  <!--
-    TO USE YOUR OWN PHOTO:
-    Replace the <div class="hero-image-placeholder">...</div>
-    with: <img src="your-photo.jpg" alt="Team photo">
-    inside the .hero-image div below.
-  -->
-  <div class="hero-image">
-    <div class="hero-image-placeholder">
-      <svg width="72" height="54" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
-        <ellipse cx="58" cy="18" rx="12" ry="10" fill="white" opacity="0.9"/>
-        <ellipse cx="48" cy="20" rx="9"  ry="7"  fill="white" opacity="0.8"/>
-        <ellipse cx="0"  cy="60" rx="50" ry="22" fill="#7ab86a"/>
-        <ellipse cx="80" cy="60" rx="40" ry="18" fill="#5ea050"/>
-      </svg>
-    </div>
-  </div>
+<footer>
+  QUESTIONS? CONTACT: +1 (940)-279-3850
+</footer>
 
-  <div class="hero-bio">
-    <p class="hero-bio-label">Team Biography / History &amp; Goal</p>
-    <p>Add your team's story here — how you got started, what drives you, and what you're building toward.</p>
-  </div>
-</div>
-```
-
-  </main>
-
-  <!-- Footer -->
-
-  <footer>
-    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
-  </footer>
-
-</div>
 </body>
 </html>
+
+
+
+🌅 Next Step
+I can now generate the other three pages (Meet the Team, Awards, Contact) in the exact same style so the whole site matches the look of your slide.
+Just tell me:
+Do you want the other pages to follow the same sunset gradient background, centered layout, and glowing text style?
