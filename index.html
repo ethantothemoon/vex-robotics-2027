@@ -164,10 +164,25 @@
       font-size: clamp(0.82rem,1.4vw,1rem);
       line-height: 1.72;
       color: var(--dim);
-      /* Scrollable if text overflows on smaller screens */
       max-height: clamp(200px, 45vh, 460px);
       overflow-y: auto;
-      padding-right: 4px;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #c4583a rgba(245,232,216,0.12);
+    }
+    .home-bio-text::-webkit-scrollbar {
+      width: 5px;
+    }
+    .home-bio-text::-webkit-scrollbar-track {
+      background: rgba(245,232,216,0.08);
+      border-radius: 10px;
+    }
+    .home-bio-text::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #d47c3a 0%, #c4583a 50%, #8b3520 100%);
+      border-radius: 10px;
+    }
+    .home-bio-text::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #e08840 0%, #d4623e 50%, #9b3f28 100%);
     }
 
     /* ════════════════════════════════════════
