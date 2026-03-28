@@ -1,425 +1,2038 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rising Sunset Robotics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
-  <!-- Fonts: Anton for big title, Montserrat for other text -->
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <!-- ═══════════════════════════════════════════════════════════════
+       BASE RESET & GLOBAL
+  ═══════════════════════════════════════════════════════════════ -->
 
   <style>
-    /* ---------- Reset & base ---------- */
-    * { box-sizing: border-box; }
-    html,body { height: 100%; }
-    body {
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
-      font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      padding: 0;
+    }
+
+    :root {
+      /* ── Shared tokens ── */
+      --cream:        #f5e8d8;
+      --cream-dim:    rgba(245, 232, 216, 0.72);
+      --cream-faint:  rgba(245, 232, 216, 0.42);
+      --sand:         #e8c89a;
+      --black:        #000000;
+      --near-black:   #080808;
+      --dark:         #0a0a0a;
+
+      /* ── Home page ── */
+      --home-rust:    #c4583a;
+      --home-amber:   #d47c3a;
+      --home-deep:    #6b2010;
+      --home-mid:     #b5441e;
+
+      /* ── Team page ── */
+      --team-bg:      #080808;
+      --team-blue:    #1a1aff;
+      --team-teal:    #00c8c8;
+
+      /* ── Going Forward page ── */
+      --fwd-bg:       #050505;
+      --fwd-blue:     #0044dd;
+      --fwd-teal:     #00e5cc;
+      --fwd-footer:   #0055ff;
+
+      /* ── Awards page ── */
+      --aw-bg:        #050505;
+      --aw-red:       #c83020;
+      --aw-orange:    #e05030;
+
+      /* ── Typography sizes ── */
+      --text-xs:    0.72rem;
+      --text-sm:    0.82rem;
+      --text-base:  0.92rem;
+      --text-md:    1rem;
+      --text-lg:    1.15rem;
+      --text-xl:    1.4rem;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Barlow', sans-serif;
+      background: var(--black);
+      color: var(--cream);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      color: #fff;
-      overflow-x: hidden;
     }
 
-    /* ---------- Full-page background: layered sunset + noise ---------- */
-    body::before {
-      /* layered gradients to approximate the warm multi-stop sunset in the screenshot */
-      content: "";
-      position: fixed;
+    /* iPad and desktop: lock to viewport height so nothing overflows */
+    @media (min-width: 768px) {
+      html, body { overflow: hidden; height: 100vh; }
+      .page { height: 100vh; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GRAIN / TEXTURE UTILITY
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    .grain {
+      position: absolute;
       inset: 0;
-      z-index: -3;
+      pointer-events: none;
+      z-index: 3;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+      opacity: 0.38;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PAGE ROUTER SYSTEM
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* All pages sit stacked; only .active is shown */
+    .page {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    /* Page transition — fade + slight upward slide */
+    @keyframes pageEnter {
+      0%   { opacity: 0;   transform: translateY(16px); }
+      100% { opacity: 1;   transform: translateY(0);    }
+    }
+
+    .page.active {
+      animation: pageEnter 0.42s cubic-bezier(0.22, 0.68, 0, 1.2) both;
+    }
+
+    /* Staggered child reveals */
+    @keyframes revealUp {
+      0%   { opacity: 0; transform: translateY(22px); }
+      100% { opacity: 1; transform: translateY(0);    }
+    }
+
+    .rv  { opacity: 0; animation: revealUp 0.55s cubic-bezier(0.22, 0.68, 0, 1) forwards; }
+    .rv1 { animation-delay: 0.04s; }
+    .rv2 { animation-delay: 0.11s; }
+    .rv3 { animation-delay: 0.18s; }
+    .rv4 { animation-delay: 0.25s; }
+    .rv5 { animation-delay: 0.32s; }
+    .rv6 { animation-delay: 0.39s; }
+    .rv7 { animation-delay: 0.46s; }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SHARED NAVIGATION
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    .nav {
+      position: relative;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      padding: 18px 46px;
+      flex-shrink: 0;
+    }
+
+    /* Left-most label (current page name) */
+    .nav-current-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 0.82rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream);
+      cursor: pointer;
+      margin-right: auto;
+      transition: opacity 0.18s;
+      user-select: none;
+    }
+    .nav-current-label:hover { opacity: 0.65; }
+
+    /* Star accent used on team page */
+    .nav-star {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 1.1rem;
+      vertical-align: middle;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      gap: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+      align-items: center;
+    }
+
+    /* Pipe separator */
+    .nav-links li + li::before {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 14px;
+      background: var(--cream-faint);
+      margin: 0 26px;
+    }
+
+    .nav-links a,
+    .nav-links .nav-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.76rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      opacity: 0.80;
+      transition: opacity 0.18s;
+      user-select: none;
+    }
+    .nav-links a:hover,
+    .nav-links .nav-btn:hover { opacity: 1; }
+
+    .nav-links a::after,
+    .nav-links .nav-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: var(--cream);
+      transition: width 0.22s ease;
+    }
+    .nav-links a:hover::after,
+    .nav-links .nav-btn:hover::after { width: 100%; }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SHARED FOOTER
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    .footer {
+      position: relative;
+      z-index: 200;
+      flex-shrink: 0;
+      padding: 14px 46px;
+    }
+
+    .footer p {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.80rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cream);
+    }
+
+    .footer-dark  { background: var(--black); }
+    .footer-blue  { background: var(--fwd-footer); }
+    .footer-charcoal { background: #111; }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PLACEHOLDER IMAGE COMPONENT
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(155deg,
+        #aad5f0 0%,
+        #76c4e0 35%,
+        #84c077 65%,
+        #5ea054 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .img-placeholder svg {
+      width: 58px;
+      opacity: 0.82;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ████████ PAGE 1 — HOME
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* Background gradient — warm sunset */
+    #page-home {
       background:
-        radial-gradient(1200px 400px at 90% 12%, rgba(20,10,8,0.55), transparent 30%),
-        radial-gradient(800px 300px at 10% 20%, rgba(10,6,6,0.45), transparent 30%),
-        linear-gradient(135deg,
-          #5b3420 0%,
-          #8a4f28 18%,
-          #b1682f 34%,
-          #c98853 56%,
-          #d9ab5b 76%,
-          #c08858 100%);
-      background-blend-mode: normal, overlay, normal;
+        radial-gradient(ellipse 78% 62% at 73% 36%, #c8603a 0%, transparent 58%),
+        radial-gradient(ellipse 55% 78% at 17% 64%, #8b3520 0%, transparent 52%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, var(--home-mid) 0%, var(--home-deep) 100%);
     }
 
-    /* subtle grain/noise overlay (data URI tiny svg with dots) */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      opacity: 0.28;
-      background-image: url("data:image/svg+xml;utf8,\
-        <svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'>\
-          <defs><pattern id='p' width='6' height='6' patternUnits='userSpaceOnUse'><rect width='6' height='6' fill='none'/><circle cx='1' cy='1' r='0.6' fill='%23ffffff' opacity='0.15'/></pattern></defs>\
-          <rect width='100%' height='100%' fill='url(%23p)'/></svg>");
-      mix-blend-mode: overlay;
+
+
+    /* ── Decorative wave lines (right edge) ── */
+    .home-deco-waves {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 118px;
+      height: 100%;
+      opacity: 0.20;
+      z-index: 4;
       pointer-events: none;
     }
 
-    /* ---------- Stage container ---------- */
-    .stage {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* ---------- Header (top bar) ---------- */
-    header {
-      padding: 22px 36px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    /* ── Main two-column layout ── */
+    .home-main {
       position: relative;
       z-index: 10;
-    }
-
-    /* small HOME at top-left */
-    .home-label {
-      font-weight: 800;
-      font-size: 20px;
-      letter-spacing: 1px;
-      color: #ffffff;
-      text-shadow: 0 1px 0 rgba(0,0,0,0.45);
-    }
-
-    /* nav centered visually: we center nav by absolute-centering within header */
-    nav {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 20px;
-      display: flex;
-      gap: 36px;
-      align-items: center;
-      z-index: 11;
-    }
-
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 800;
-      font-size: 16px;
-      letter-spacing: 1px;
-      padding: 6px 2px;
-    }
-
-    /* vertical separator lines between nav items (exactly like screenshot) */
-    nav a + a { position: relative; padding-left: 18px; }
-    nav a + a::before {
-      content: "";
-      position: absolute;
-      left: 6px;
-      top: 4px;
-      bottom: 4px;
-      width: 2px;
-      background: rgba(255,255,255,0.9);
-      border-radius: 1px;
-      transform: scaleY(0.9);
-    }
-
-    /* ---------- Decorative left striped badge (cluster) ---------- */
-    .left-badge {
-      position: absolute;
-      top: 110px;
-      left: 36px;
-      width: 150px;
-      height: 150px;
-      z-index: 3;
-      pointer-events: none;
-      transform: rotate(-6deg);
-      opacity: 0.95;
-    }
-
-    /* ---------- Decorative right wavy thick lines ---------- */
-    .right-waves {
-      position: absolute;
-      top: 70px;
-      right: 28px;
-      width: 160px;
-      height: 320px;
-      z-index: 3;
-      pointer-events: none;
-      opacity: 0.98;
-    }
-
-    /* ---------- Hero/content area ---------- */
-    main.hero {
-      padding: 48px 80px 40px 80px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      position: relative;
-      z-index: 4;
-      min-height: calc(100vh - 160px); /* leave room for header+footer */
-    }
-
-    .hero-inner {
-      width: 1150px; /* match screenshot width feel */
-      max-width: calc(100% - 80px);
-      margin: 0 auto;
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      gap: 40px;
-    }
-
-    /* big title aligned center horizontally in the hero area, but visually sits to the right of the illustration */
-    .title-wrap {
       flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 46px;
+      gap: 0;
+    }
+
+    /* Left column — giant title */
+    .home-col-left {
+      padding-right: 44px;
+    }
+
+    .home-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(4rem, 8.2vw, 8.2rem);
+      line-height: 0.89;
+      color: var(--cream);
+      text-transform: uppercase;
+      letter-spacing: -0.015em;
+    }
+
+    /* Right column — image + bio side by side */
+    .home-col-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 34px;
+    }
+
+    .home-img-frame {
+      width: 268px;
+      height: 226px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 20px 64px rgba(0, 0, 0, 0.52);
+    }
+
+    .home-img-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .home-bio {
+      max-width: 300px;
+    }
+
+    .home-bio-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      color: var(--sand);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .home-bio-text {
+      font-size: var(--text-base);
+      line-height: 1.76;
+      color: var(--cream-dim);
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ████████ PAGE 2 — MEET THE TEAM
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    #page-team {
+      background: var(--team-bg);
+    }
+
+    /* Atmospheric blobs */
+    .team-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(88px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .team-blob-tl {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(26, 26, 255, 0.22) 0%, transparent 70%);
+      top: -100px; left: -100px;
+    }
+
+    .team-blob-tr {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(0, 200, 200, 0.14) 0%, transparent 70%);
+      top: -50px; right: 80px;
+    }
+
+    .team-blob-br {
+      width: 500px; height: 400px;
+      background: radial-gradient(circle, rgba(0, 200, 200, 0.10) 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+    }
+
+    /* ── Main team content area ── */
+    .team-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      min-height: 0;
+      padding: 4px 40px 0;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 18px;
-      padding-top: 22px;
     }
 
-    h1.title {
-      font-family: "Anton", "Arial Black", sans-serif;
-      font-size: 120px; /* large */
-      line-height: 0.92;
-      margin: 0;
-      text-align: center;
-      letter-spacing: 2px;
-      color: #ffffff;
-      text-transform: uppercase;
-      text-shadow: 6px 6px 18px rgba(0,0,0,0.55);
-      transform: translateY(6px);
+    /* 4-column grid — one per member */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0 6px;
+      flex: 1;
+      min-height: 0;
+      align-items: start;
     }
 
-    /* subtitle text on the right of the illustration in the screenshot (smaller, light) */
-    .subtitle {
-      font-weight: 600;
-      font-size: 18px;
-      color: #f0ece8;
-      opacity: 0.95;
-      text-align: center;
-      margin-top: -6px;
-    }
-
-    /* ---------- Illustration rounded card (left-of-center) ---------- */
-    .card-col {
-      width: 360px; /* card+margin in screenshot */
-      flex: 0 0 360px;
+    /* ── Individual member card ── */
+    .member-col {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 90px; /* push card down to match screenshot vertical position */
+      flex-direction: column;
+      padding: 0 8px;
+      height: 100%;
     }
 
-    .land-card {
-      width: 260px;
-      height: 220px;
-      background: linear-gradient(180deg, #cfe9ff 0%, #bfe7ff 40%, #bde6bb 60%);
-      border-radius: 16px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
-      position: relative;
+    /* Name at top — always solid bold, no hollow */
+    .member-name-top {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.8rem, 3.2vw, 3.2rem);
+      text-transform: uppercase;
+      color: var(--cream);
+      line-height: 0.88;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+      -webkit-text-stroke: 0;
+    }
+
+    /* Photo frame */
+    .member-photo {
+      width: 100%;
+      aspect-ratio: 4 / 3.2;
+      border-radius: 10px;
       overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      margin-bottom: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
     }
 
-    /* optional soft inner glow to match screenshot fade on top */
-    .land-card::before {
-      content: "";
+    .member-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Bio text */
+    .member-bio {
+      font-size: var(--text-xs);
+      line-height: 1.62;
+      color: var(--cream-dim);
+      flex-shrink: 0;
+    }
+
+    /* Name at bottom (Jaivik / Ethan) — outlined, pushed down */
+    .member-name-bottom {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.5rem, 2.8vw, 2.8rem);
+      text-transform: uppercase;
+      -webkit-text-stroke: 2px var(--cream);
+      color: transparent;
+      line-height: 0.88;
+      margin-top: auto;
+      padding-top: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Second photo in a col (Jaivik's photo under Advik) */
+    .member-photo-lower {
+      width: 100%;
+      aspect-ratio: 4 / 3.2;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+    }
+
+    .member-photo-lower img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Offset second row members downward for stagger effect */
+    .member-col.offset-down {
+      padding-top: 52px;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ████████ PAGE 3 — GOING FORWARD
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    #page-forward {
+      background:
+        radial-gradient(ellipse 55% 45% at 8% 12%, rgba(0, 30, 100, 0.25) 0%, transparent 55%),
+        radial-gradient(ellipse 65% 55% at 88% 82%, rgba(0, 200, 180, 0.08) 0%, transparent 55%),
+        var(--fwd-bg);
+    }
+
+    /* Atmospheric blobs */
+    .fwd-blob {
       position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.12) 20%, transparent 60%);
-      mix-blend-mode: overlay;
+      border-radius: 50%;
+      filter: blur(110px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .fwd-blob-bl {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(0, 50, 180, 0.20) 0%, transparent 70%);
+      bottom: -120px; left: -120px;
+    }
+
+    .fwd-blob-tr {
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(0, 229, 204, 0.08) 0%, transparent 70%);
+      top: 30px; right: 40px;
+    }
+
+    /* ── Main 2x2 grid ── */
+    .fwd-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      padding: 18px 46px 6px;
+      gap: 14px 72px;
+    }
+
+    /* ── Shared cell ── */
+    .fwd-cell {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow: hidden;
+    }
+
+    /* Large display headings */
+    .fwd-heading {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 5.5vw, 5.4rem);
+      line-height: 0.86;
+      text-transform: uppercase;
+      color: var(--cream);
+      margin-bottom: 10px;
+    }
+
+    .fwd-sub-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 400;
+      font-size: var(--text-sm);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cream-faint);
+      margin-bottom: 0;
+    }
+
+    .fwd-body {
+      font-size: var(--text-base);
+      line-height: 1.74;
+      color: var(--cream-dim);
+      max-width: 480px;
+    }
+
+    /* Full-width bottom: SPONSORS & DONATIONS — same padding as fwd-main */
+    .fwd-sponsors-row {
+      position: relative;
+      z-index: 10;
+      padding: 0 46px 12px;
+      flex-shrink: 0;
+    }
+
+    .fwd-sponsors-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .fwd-sponsors-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3rem, 7.2vw, 7rem);
+      line-height: 0.86;
+      text-transform: uppercase;
+      text-align: left;
+      color: var(--cream);
+    }
+
+    .fwd-sponsors-body {
+      font-size: var(--text-base);
+      line-height: 1.74;
+      color: var(--cream-dim);
+      max-width: 700px;
+      margin-top: 14px;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ████████ PAGE 4 — AWARDS
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    #page-awards {
+      background:
+        radial-gradient(ellipse 62% 48% at 4% 88%, rgba(200, 48, 32, 0.55) 0%, transparent 50%),
+        radial-gradient(ellipse 48% 42% at 96% 52%, rgba(224, 80, 48, 0.42) 0%, transparent 45%),
+        var(--aw-bg);
+    }
+
+    /* Atmospheric blobs */
+    .aw-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(96px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .aw-blob-bl {
+      width: 440px; height: 440px;
+      background: radial-gradient(circle, rgba(200, 48, 32, 0.45) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+    }
+
+    .aw-blob-tr {
+      width: 320px; height: 280px;
+      background: radial-gradient(circle, rgba(224, 80, 48, 0.32) 0%, transparent 70%);
+      top: 20px; right: -40px;
+    }
+
+    /* ── Main two-column layout ── */
+    .aw-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      padding: 28px 46px 10px;
+      gap: 44px 88px;
+    }
+
+    /* Left col */
+    .aw-left { display: flex; flex-direction: column; }
+
+    /* THINK & TEAMWORK — outlined stroke heading */
+    .aw-hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3.5rem, 7.2vw, 7rem);
+      line-height: 0.84;
+      text-transform: uppercase;
+      -webkit-text-stroke: 2.5px var(--cream);
+      color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .aw-body {
+      font-size: var(--text-base);
+      line-height: 1.74;
+      color: var(--cream-dim);
+    }
+
+    /* Right col */
+    .aw-right {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .aw-body-right {
+      font-size: var(--text-base);
+      line-height: 1.74;
+      color: var(--cream-dim);
+      margin-bottom: auto;
+    }
+
+    /* JOURNEY — large outlined, bottom-right */
+    .aw-journey {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3rem, 6.8vw, 6.5rem);
+      text-transform: uppercase;
+      -webkit-text-stroke: 2.5px var(--cream);
+      color: transparent;
+      line-height: 0.84;
+      align-self: flex-end;
+      margin-top: 28px;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HOVER & INTERACTION STATES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* Nav link hover underline slide-in */
+    .nav-links a {
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: var(--cream);
+      transition: width 0.22s ease;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Nav brand subtle scale on hover */
+    .nav-current-label {
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .nav-current-label:hover {
+      transform: scale(0.97);
+    }
+
+    /* Member photo zoom on hover */
+    .member-photo,
+    .member-photo-lower {
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+    .member-photo:hover,
+    .member-photo-lower:hover {
+      transform: scale(1.025);
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.70);
+    }
+
+    /* Home image zoom on hover */
+    .home-img-frame {
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+    .home-img-frame:hover {
+      transform: scale(1.02);
+      box-shadow: 0 24px 72px rgba(0, 0, 0, 0.60);
+    }
+
+    /* Footer link styling (if added later) */
+    .footer a {
+      color: var(--cream);
+      text-decoration: underline;
+      opacity: 0.82;
+      transition: opacity 0.18s;
+    }
+    .footer a:hover {
+      opacity: 1;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ACCESSIBILITY & FOCUS STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* Keyboard focus ring — visible but styled */
+    :focus-visible {
+      outline: 2px solid var(--cream);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    /* Remove default focus for mouse users */
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* Skip-to-content link (screen readers) */
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      z-index: 9999;
+      background: var(--cream);
+      color: var(--black);
+      padding: 8px 16px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: top 0.2s;
+    }
+    .skip-link:focus {
+      top: 16px;
+    }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PRINT STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    @media print {
+      html, body { overflow: auto; height: auto; }
+      .page { position: relative; inset: auto; display: flex !important; min-height: 100vh; page-break-after: always; }
+      .grain, .team-blob, .fwd-blob, .aw-blob, .home-deco-circle, .home-deco-waves { display: none; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCROLLBAR STYLING (webkit)
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(245, 232, 216, 0.25); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(245, 232, 216, 0.45); }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HOME PAGE — EXTENDED DETAIL STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * The home page is the first impression.
+     * Key design decisions:
+     *   - Warm sunset gradient filling the full viewport
+     *   - Giant condensed typeface for team name (left half)
+     *   - Image + bio text on the right half
+     *   - Two SVG decorations anchor the composition (circle TL, waves TR)
+     *   - Grain overlay adds analog warmth
+     *   - No scroll — everything visible at once on desktop
+     */
+
+    /* Ensure home decorative elements don't interfere with clicks */
+    #page-home .home-deco-circle,
+    #page-home .home-deco-waves {
+      user-select: none;
       pointer-events: none;
     }
 
-    /* cloud and hills are SVG inside card for crisp shapes */
-    .land-svg { display: block; width:100%; height:100%; }
-
-    /* ---------- Footer: black bar across bottom ---------- */
-    footer.site-footer {
-      background: #000;
-      color: #fff;
-      padding: 18px 36px;
-      font-weight: 800;
-      letter-spacing: 0.6px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 28px;
-      box-shadow: 0 -2px 0 rgba(0,0,0,0.4);
-      z-index: 20;
+    /* Home title — slight letter-spacing refinement at large sizes */
+    @media (min-width: 1400px) {
+      .home-title {
+        font-size: 9rem;
+        letter-spacing: -0.02em;
+      }
     }
 
-    .footer-left {
-      font-size: 18px;
-      line-height: 1.05;
+    /* Home bio label — subtle underline accent */
+    .home-bio-label {
+      display: inline-block;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(232, 200, 154, 0.35);
     }
 
-    .footer-left .contact {
-      display: block;
-      margin-top: 8px;
-      font-size: 16px;
+    /*
+     * Home right column — when viewport is very wide,
+     * increase the gap between image and bio text
+     */
+    @media (min-width: 1600px) {
+      .home-col-right { gap: 48px; }
+      .home-img-frame { width: 300px; height: 256px; }
     }
-
-    /* match the screenshot extra large bold number style on the left contact line */
-    .footer-left strong { font-weight: 900; }
-
-    /* small right part (if needed) */
-    .footer-right {
-      margin-left: auto;
-      font-size: 16px;
-      font-weight: 700;
-      opacity: 0.95;
-    }
-
-    /* ---------- Responsiveness & fine-tuning ---------- */
-    @media (max-width: 1280px) {
-      h1.title { font-size: 96px; }
-      .hero-inner { width: 1000px; }
-      .card-col { margin-top: 70px; }
-    }
-
-    @media (max-width: 900px) {
-      nav { top: 16px; gap: 22px; }
-      h1.title { font-size: 56px; }
-      .land-card { width: 220px; height: 190px; border-radius: 14px; }
-      .card-col { width: 280px; flex-basis: 280px; margin-top: 40px; }
-      .hero-inner { flex-direction: column; align-items: center; gap: 30px; }
-      main.hero { padding: 30px 24px; min-height: calc(100vh - 140px); }
-    }
-
-    @media (max-width: 520px) {
-      .home-label { font-size: 16px; }
-      nav a { font-size: 12px; }
-      .subtitle { font-size: 14px; }
-      footer.site-footer { flex-direction: column; align-items: stretch; gap: 10px; text-align: left; }
-    }
-
   </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TEAM PAGE — EXTENDED DETAIL STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * The team page showcases 5 members in a dense 5-column grid.
+     * Design intent:
+     *   - Names at varying vertical positions create visual rhythm
+     *   - Advik/Ritvik have their names at top
+     *   - Jaivik/Ethan names appear at the bottom of their neighbor's column,
+     *     with their photos in the adjacent offset column
+     *   - Ayush is center with two photos (most prominent)
+     *   - Dark background with blue/teal atmospheric blobs
+     *   - All text is white; outlined names create depth contrast
+     */
+
+    /* Team page — ensure grid fills available height */
+    #page-team .team-grid {
+      overflow: hidden;
+    }
+
+    /* Fine-tune member column spacing at large viewports */
+    @media (min-width: 1400px) {
+      .team-grid { gap: 0 12px; }
+      .member-col { padding: 0 12px; }
+      .member-name-top { font-size: 3.2rem; }
+      .member-name-bottom { font-size: 3.2rem; }
+      .member-bio { font-size: 0.78rem; }
+    }
+
+    /* On extra-wide screens, limit the grid from becoming too stretched */
+    @media (min-width: 1800px) {
+      .team-main { max-width: 1600px; margin: 0 auto; }
+    }
+
+    /* Make member bios slightly more readable on mid-range screens */
+    @media (min-width: 1100px) and (max-width: 1399px) {
+      .member-bio { font-size: 0.75rem; line-height: 1.55; }
+    }
+
+    /* Member photo hover glow — brand-colored */
+    .member-photo:hover {
+      box-shadow:
+        0 14px 44px rgba(0, 0, 0, 0.70),
+        0 0 0 1px rgba(245, 232, 216, 0.08);
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GOING FORWARD PAGE — EXTENDED DETAIL STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * Going Forward is a dark, atmospheric page with cool blue tones.
+     * Design intent:
+     *   - Near-black background with deep blue blob accents
+     *   - 2×2 grid: top-left = "New Year New Us", top-right = body text
+     *   - bottom-left = "Fresh Talent", bottom-right = open
+     *   - Below the grid: full-width "SPONSORS & DONATIONS" title
+     *   - Footer is solid bright blue (brand pop)
+     *
+     * The blue footer is intentionally jarring — it signals fundraising
+     * energy and draws attention to the CTA contact info.
+     */
+
+    /* Sponsors title — slight tracking for legibility at large size */
+    .fwd-sponsors-title {
+      letter-spacing: -0.02em;
+    }
+
+    /* On ultra-wide screens, the sponsors title scales up further */
+    @media (min-width: 1600px) {
+      .fwd-sponsors-title { font-size: 8rem; }
+      .fwd-heading { font-size: 6rem; }
+    }
+
+    /* Body text in fwd cells — subtle indent */
+    .fwd-cell .fwd-body {
+      padding-left: 0;
+    }
+
+    /* Forward blobs — ensure they stay behind content */
+    #page-forward .fwd-blob {
+      z-index: 0;
+    }
+
+    /* Forward main — tweak row ratio so sponsors title has space */
+    #page-forward .fwd-main {
+      grid-template-rows: 1fr 0.85fr;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       AWARDS PAGE — EXTENDED DETAIL STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * The Awards page has the most dramatic aesthetic.
+     * Design intent:
+     *   - Near-black background with deep red/orange blobs in corners
+     *   - Two large outlined display headings: "THINK & TEAMWORK" (left)
+     *     and "JOURNEY" (bottom-right)
+     *   - Text-stroke style (no fill) references vintage athletic signage
+     *   - Body text is justified and dense, echoing a printed program
+     *   - Red/orange glow blobs reference achievement and passion
+     */
+
+    /* Outlined stroke headings — refine stroke weight at different sizes */
+    @media (min-width: 1400px) {
+      .aw-hero-title { font-size: 7.5rem; -webkit-text-stroke-width: 3px; }
+      .aw-journey    { font-size: 7rem;   -webkit-text-stroke-width: 3px; }
+    }
+
+    @media (min-width: 1800px) {
+      .aw-hero-title { font-size: 9rem; }
+      .aw-journey    { font-size: 8.5rem; }
+    }
+
+    /* Body text — subtle text-shadow for legibility over the glow */
+    .aw-body,
+    .aw-body-right {
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Awards main — align items to stretch so right col fills height */
+    #page-awards .aw-main {
+      align-items: stretch;
+    }
+
+    #page-awards .aw-right {
+      min-height: 0;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOOTER — EXTENDED DETAIL STYLES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * The footer is minimal — just a bar with contact info.
+     * Each page has a different footer color to reinforce the
+     * distinct personality of that section:
+     *
+     *   Home    → dark charcoal (#111) — grounded, understated
+     *   Team    → pure black (#000)    — bold, clean
+     *   Forward → bright blue (#0055ff) — energetic, fundraising
+     *   Awards  → dark charcoal (#111) — consistent with Home
+     */
+
+    /* Footer text — prevent wrapping on most screens */
+    .footer p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* On mobile, allow wrapping */
+    @media (max-width: 540px) {
+      .footer p {
+        white-space: normal;
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ANIMATION — EXTENDED DETAIL
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /*
+     * Animation philosophy for this site:
+     *
+     *   1. Page transitions: each page fades + slides up on activation.
+     *      Duration: 420ms. Easing: cubic-bezier(0.22, 0.68, 0, 1.2)
+     *      (slight overshoot for energy).
+     *
+     *   2. Content reveals: child elements stagger in with 70ms gaps.
+     *      Classes .rv1 → .rv7 control the delay.
+     *
+     *   3. Hover states: image frames scale slightly (1.02×) with
+     *      smooth ease. Nav links get an underline slide-in.
+     *
+     *   4. No looping animations — the site is informational, not
+     *      a demo reel. Motion should serve content, not distract.
+     *
+     *   5. prefers-reduced-motion: all durations collapse to ~0ms
+     *      for users who need reduced motion.
+     */
+
+    /* Page enter — subtle scale addition on top of translate */
+    @keyframes pageEnterFull {
+      0%   { opacity: 0; transform: translateY(16px) scale(0.995); }
+      100% { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    /* Apply the richer animation to active pages */
+    .page.active {
+      animation: pageEnterFull 0.42s cubic-bezier(0.22, 0.68, 0, 1.2) both;
+    }
+
+    /* Blob pulse — very subtle, slow, adds life to background */
+    @keyframes blobPulse {
+      0%, 100% { opacity: 1;    transform: scale(1); }
+      50%       { opacity: 0.75; transform: scale(1.05); }
+    }
+
+    .team-blob,
+    .fwd-blob,
+    .aw-blob {
+      animation: blobPulse 8s ease-in-out infinite;
+    }
+
+    .team-blob-tl { animation-delay: 0s; }
+    .team-blob-tr { animation-delay: 2.5s; }
+    .team-blob-br { animation-delay: 5s; }
+    .fwd-blob-bl  { animation-delay: 1s; }
+    .fwd-blob-tr  { animation-delay: 4s; }
+    .aw-blob-bl   { animation-delay: 0.5s; }
+    .aw-blob-tr   { animation-delay: 3.5s; }
+
+    /* Reduce blob animation if prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      .team-blob,
+      .fwd-blob,
+      .aw-blob {
+        animation: none;
+      }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HOW TO CUSTOMIZE THIS SITE
+       ───────────────────────────────────────────────────────────────
+
+       ADDING YOUR TEAM PHOTOS
+       ────────────────────────
+       Each member has a .img-placeholder div. To swap it for a real
+       photo, replace:
+
+         <div class="img-placeholder">...(svg)...</div>
+
+       with:
+
+         <img src="advik.jpg" alt="Advik">
+
+       inside the .member-photo wrapper. Make sure your image files
+       are in the same folder as index.html on GitHub Pages.
+
+       For the home page hero image, find .home-img-frame and do the
+       same swap.
+
+       CHANGING TEAM MEMBER BIOS
+       ──────────────────────────
+       Each .member-bio paragraph contains placeholder Lorem Ipsum.
+       Replace the text with each member's real bio, role, or fun fact.
+
+       CHANGING CONTACT INFO
+       ──────────────────────
+       Search for "+1 (940)-279-3850" and "[your email here]" and
+       replace both with your real contact details. There are 4
+       footer instances (one per page).
+
+       ADDING REAL AWARDS CONTENT
+       ───────────────────────────
+       On the Awards page, replace the Lorem Ipsum paragraphs inside
+       .aw-body and .aw-body-right with your actual award descriptions,
+       competition results, and journey narrative.
+
+       GOING FORWARD — SPONSORS
+       ─────────────────────────
+       Replace the placeholder body text inside .fwd-body with real
+       sponsor tier descriptions and a donation link. You can add an
+       <a href="..."> tag around a donation button here.
+
+       DEPLOYING TO GITHUB PAGES
+       ──────────────────────────
+       1. Create a repository on GitHub (e.g. rising-sunset-robotics)
+       2. Upload this index.html (and any photo files) to the repo
+       3. Go to Settings → Pages → Branch: main / root
+       4. Your site will be live at:
+          https://[your-username].github.io/rising-sunset-robotics/
+
+       ADDING MORE PAGES
+       ──────────────────
+       To add a 5th page (e.g. "Gallery"):
+       1. Add 'gallery' to PAGE_IDS in the script
+       2. Add the page title to PAGE_TITLES
+       3. Add the keyboard shortcut to KEY_MAP (e.g. '5': 'gallery')
+       4. Create a new <div id="page-gallery" class="page"> section
+       5. Add nav links pointing to goTo('gallery') on each page
+
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       UTILITY CLASSES
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* Text utilities */
+    .text-cream    { color: var(--cream); }
+    .text-sand     { color: var(--sand); }
+    .text-dim      { color: var(--cream-dim); }
+    .text-faint    { color: var(--cream-faint); }
+    .text-upper    { text-transform: uppercase; }
+    .text-condensed { font-family: 'Barlow Condensed', sans-serif; }
+    .text-bold     { font-weight: 700; }
+    .text-black-weight { font-weight: 900; }
+
+    /* Spacing */
+    .mt-4  { margin-top: 4px; }
+    .mt-8  { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-4  { margin-bottom: 4px; }
+    .mb-8  { margin-bottom: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+
+    /* Display */
+    .d-flex        { display: flex; }
+    .d-grid        { display: grid; }
+    .align-center  { align-items: center; }
+    .justify-center{ justify-content: center; }
+    .flex-col      { flex-direction: column; }
+    .flex-1        { flex: 1; }
+    .w-full        { width: 100%; }
+    .h-full        { height: 100%; }
+    .overflow-hidden { overflow: hidden; }
+    .relative      { position: relative; }
+    .absolute      { position: absolute; }
+    .z-10          { z-index: 10; }
+
+    /* Borders */
+    .rounded-sm  { border-radius: 6px; }
+    .rounded-md  { border-radius: 10px; }
+    .rounded-lg  { border-radius: 14px; }
+    .rounded-xl  { border-radius: 20px; }
+    .rounded-full{ border-radius: 9999px; }
+
+    /* Shadows */
+    .shadow-sm  { box-shadow: 0 4px 16px rgba(0,0,0,0.30); }
+    .shadow-md  { box-shadow: 0 8px 32px rgba(0,0,0,0.45); }
+    .shadow-lg  { box-shadow: 0 16px 56px rgba(0,0,0,0.55); }
+    .shadow-xl  { box-shadow: 0 24px 72px rgba(0,0,0,0.65); }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       RESPONSIVE BREAKPOINTS
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <style>
+    @media (max-width: 980px) {
+      html, body { overflow: auto; }
+
+      .page {
+        position: relative;
+        inset: auto;
+        min-height: 100vh;
+        display: none;
+        flex-direction: column;
+      }
+      .page.active { display: flex; }
+
+      /* Home */
+      .home-main {
+        grid-template-columns: 1fr;
+        padding: 28px 24px 48px;
+        gap: 32px;
+      }
+      .home-col-left { padding-right: 0; }
+      .home-col-right { flex-direction: column; }
+      .home-img-frame { width: 100%; height: 200px; }
+
+      /* Team */
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .member-col.offset-down { padding-top: 0; }
+      .team-main { padding: 16px 20px 0; overflow-y: auto; }
+
+      /* Forward */
+      .fwd-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        padding: 24px 24px 16px;
+        gap: 24px;
+      }
+      .fwd-sponsors-row {
+        padding: 0 24px 12px;
+      }
+
+      /* Awards */
+      .aw-main {
+        grid-template-columns: 1fr;
+        padding: 24px 24px 16px;
+        gap: 24px;
+      }
+      .aw-right { height: auto; }
+
+      /* Nav */
+      .nav {
+        padding: 14px 22px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .nav-links li + li::before { margin: 0 16px; }
+
+      /* Footer */
+      .footer { padding: 14px 22px; }
+    }
+
+    @media (max-width: 540px) {
+      .team-grid { grid-template-columns: 1fr; }
+      .home-title { font-size: 3.6rem; }
+      .fwd-heading { font-size: 2.4rem; }
+      .aw-hero-title { font-size: 3rem; }
+      .aw-journey { font-size: 2.6rem; }
+    }
+  </style>
+
 </head>
+
 <body>
-  <div class="stage">
 
-    <!-- Header -->
-    <header>
-      <div class="home-label">HOME</div>
+<a href="#main-content" class="skip-link">Skip to content</a>
 
-      <nav aria-label="Main navigation">
-        <a href="#team">MEET THE TEAM</a>
-        <a href="#awards">AWARDS</a>
-        <a href="#forward">GOING FORWARD</a>
-      </nav>
-    </header>
+<!-- ════════════════════════════════════════════════════════════════
+     PAGE 1 — HOME
+════════════════════════════════════════════════════════════════ -->
 
-    <!-- Decorative left tilted striped badge -->
-    <div class="left-badge" aria-hidden="true">
-      <!-- composed of two overlapping soft circles clipped with diagonal stripes -->
-      <svg viewBox="0 0 160 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="diagStripes" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(-25)">
-            <rect width="8" height="8" fill="transparent"/>
-            <rect x="0" y="0" width="4" height="8" fill="white" opacity="0.95"/>
-          </pattern>
-          <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="0.6" />
-          </filter>
-        </defs>
+<div id="page-home" class="page active">
 
-        <!-- base blobs -->
-        <g fill="none" stroke="none" filter="url(#soft)">
-          <circle cx="48" cy="68" r="34" fill="rgba(255,255,255,0.06)"/>
-          <circle cx="88" cy="44" r="40" fill="rgba(255,255,255,0.06)"/>
-        </g>
+  <!-- Texture -->
 
-        <!-- stripe clipping mask over a rounded cluster -->
-        <g transform="translate(6,8)" fill="url(#diagStripes)" opacity="0.95">
-          <path d="M30 40
-                   a36 36 0 1 0 72 0
-                   a26 26 0 1 1 -66 12
-                   z" />
-        </g>
+  <div class="grain"></div>
 
-        <!-- soft outline -->
-        <g stroke="rgba(255,255,255,0.08)" stroke-width="1.2" fill="none">
-          <circle cx="48" cy="68" r="34"/>
-          <circle cx="88" cy="44" r="40"/>
-        </g>
+  <!-- Decorative wave lines — right edge -->
+
+  <svg class="home-deco-waves" viewBox="0 0 118 600" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M98 0 Q48 75 98 150 Q148 225 98 300 Q48 375 98 450 Q148 525 98 600"   stroke="white" stroke-width="1.7" fill="none"/>
+    <path d="M77 0 Q27 75 77 150 Q127 225 77 300 Q27 375 77 450 Q127 525 77 600"   stroke="white" stroke-width="1.7" fill="none"/>
+    <path d="M56 0 Q6 75 56 150 Q106 225 56 300 Q6 375 56 450 Q106 525 56 600"    stroke="white" stroke-width="1.7" fill="none"/>
+    <path d="M35 0 Q-15 75 35 150 Q85 225 35 300 Q-15 375 35 450 Q85 525 35 600"  stroke="white" stroke-width="1.7" fill="none"/>
+    <path d="M14 0 Q-36 75 14 150 Q64 225 14 300 Q-36 375 14 450 Q64 525 14 600"  stroke="white" stroke-width="1.7" fill="none"/>
+  </svg>
+
+  <!-- Navigation -->
+
+  <nav class="nav" aria-label="Main navigation — Home">
+    <span class="nav-current-label" onclick="goTo('home')" role="button" tabindex="0" aria-label="Home page">Home</span>
+    <ul class="nav-links" role="list">
+      <li><button class="nav-btn" onclick="goTo('team')">Meet the Team</button></li>
+      <li><button class="nav-btn" onclick="goTo('awards')">Awards</button></li>
+      <li><button class="nav-btn" onclick="goTo('forward')">Going Forward</button></li>
+    </ul>
+  </nav>
+
+  <!-- Main content -->
+
+  <main id="main-content" class="home-main" aria-label="Home page content">
+
+```
+<!-- Left: Giant title -->
+<div class="home-col-left rv rv1">
+  <h1 class="home-title">Rising<br>Sunset<br>Robotics</h1>
+</div>
+
+<!-- Right: image + bio -->
+<div class="home-col-right rv rv3">
+  <!--
+    ╔═══════════════════════════════════════════╗
+    ║  TO ADD YOUR TEAM PHOTO:                  ║
+    ║  Replace the .img-placeholder div with:   ║
+    ║  <img src="photo.jpg" alt="Team photo">   ║
+    ║  inside .home-img-frame below             ║
+    ╚═══════════════════════════════════════════╝
+  -->
+  <div class="home-img-frame">
+    <div class="img-placeholder">
+      <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+        <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
+        <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
+        <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
+        <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
       </svg>
     </div>
-
-    <!-- Decorative right wavy thick lines -->
-    <div class="right-waves" aria-hidden="true">
-      <svg viewBox="0 0 160 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <!-- multiple stroked paths that curve same shape, spaced horizontally -->
-          <path d="M140 10 C 120 40, 120 80, 140 110 C 160 140, 160 180, 140 210 C 120 240, 120 280, 140 310" />
-          <path d="M150 10 C 130 40, 130 80, 150 110 C 170 140, 170 180, 150 210 C 130 240, 130 280, 150 310" />
-          <path d="M160 10 C 140 40, 140 80, 160 110 C 180 140, 180 180, 160 210 C 140 240, 140 280, 160 310" />
-          <path d="M130 10 C 110 40, 110 80, 130 110 C 150 140, 150 180, 130 210 C 110 240, 110 280, 130 310" />
-        </g>
-      </svg>
-    </div>
-
-    <!-- Main hero -->
-    <main class="hero" role="main">
-      <div class="hero-inner">
-
-        <!-- left column: illustration card (rounded image box) -->
-        <div class="card-col">
-          <div class="land-card" role="img" aria-label="illustration of hills and sky">
-            <!-- inline SVG for cloud + rolling hills -->
-            <svg class="land-svg" viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" >
-              <!-- sky gradient -->
-              <defs>
-                <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stop-color="#eaf6ff"/>
-                  <stop offset="0.6" stop-color="#cfe9ff"/>
-                  <stop offset="1" stop-color="#bde6bb"/>
-                </linearGradient>
-                <linearGradient id="hillA" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0" stop-color="#9fc86d"/>
-                  <stop offset="1" stop-color="#72a73a"/>
-                </linearGradient>
-                <linearGradient id="hillB" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0" stop-color="#d2f08d"/>
-                  <stop offset="1" stop-color="#a8c95a"/>
-                </linearGradient>
-              </defs>
-
-              <rect width="100%" height="100%" fill="url(#sky)"></rect>
-
-              <!-- cloud -->
-              <g transform="translate(90,40)">
-                <ellipse cx="60" cy="30" rx="40" ry="20" fill="#ffffff"/>
-                <ellipse cx="35" cy="36" rx="28" ry="16" fill="#ffffff"/>
-                <ellipse cx="90" cy="36" rx="28" ry="16" fill="#ffffff"/>
-              </g>
-
-              <!-- hills: layered bezier shapes near bottom -->
-              <path d="M0 220 C70 200 110 200 200 220 C280 240 320 200 360 220 L360 300 L0 300 Z" fill="url(#hillA)"/>
-              <path d="M0 250 C70 230 120 230 200 250 C280 270 320 230 360 250 L360 300 L0 300 Z" fill="url(#hillB)" opacity="0.95"/>
-              <!-- small highlight on hill -->
-              <path d="M0 235 C70 215 110 215 200 235 C280 255 320 215 360 235 L360 260 L0 260 Z" fill="#cbe8a5" opacity="0.28"></path>
-            </svg>
-          </div>
-        </div>
-
-        <!-- right column: big centered title -->
-        <div class="title-wrap">
-          <h1 class="title">RISING SUNSET<br>ROBOTICS</h1>
-          <div class="subtitle">Team Biography/History and Goal</div>
-        </div>
-
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="site-footer" role="contentinfo">
-      <div class="footer-left">
-        QUESTIONS?<br>
-        <span class="contact">CONTACT: <strong>+1 (940)-279-3850</strong> OR</span>
-      </div>
-
-      <div class="footer-right">EMAIL: info@risingsunsetrobotics.com</div>
-    </footer>
-
   </div>
+
+  <div class="home-bio">
+    <p class="home-bio-label">Team Biography / History &amp; Goal</p>
+    <p class="home-bio-text">
+      Add your team's story here — how Rising Sunset Robotics got started,
+      what drives you, and the goals you're working toward this season.
+    </p>
+  </div>
+</div>
+```
+
+  </main>
+
+  <!-- Footer -->
+
+  <footer class="footer footer-charcoal">
+    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
+  </footer>
+</div><!-- /page-home -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     PAGE 2 — MEET THE TEAM
+════════════════════════════════════════════════════════════════ -->
+
+<div id="page-team" class="page">
+
+  <!-- Texture -->
+
+  <div class="grain"></div>
+
+  <!-- Atmospheric color blobs -->
+
+  <div class="team-blob team-blob-tl"></div>
+  <div class="team-blob team-blob-tr"></div>
+  <div class="team-blob team-blob-br"></div>
+
+  <!-- Navigation -->
+
+  <nav class="nav">
+    <span class="nav-current-label" onclick="goTo('team')">
+      Meet the Team <span class="nav-star">✦</span>
+    </span>
+    <ul class="nav-links">
+      <li><button class="nav-btn" onclick="goTo('home')">Home</button></li>
+      <li><button class="nav-btn" onclick="goTo('forward')">Going Forward</button></li>
+      <li><button class="nav-btn" onclick="goTo('awards')">Awards</button></li>
+    </ul>
+  </nav>
+
+  <!-- Team grid: 4 members, 1 photo each, bold names only -->
+
+  <main class="team-main">
+    <div class="team-grid">
+
+```
+  <!-- ── ADVIK ── -->
+  <div class="member-col rv rv1">
+    <div class="member-name-top">Advik</div>
+    <div class="member-photo">
+      <!-- SWAP: replace .img-placeholder with <img src="advik.jpg" alt="Advik"> -->
+      <div class="img-placeholder">
+        <svg viewBox="0 0 80 60" fill="none">
+          <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+          <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
+          <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
+          <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
+          <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
+        </svg>
+      </div>
+    </div>
+    <p class="member-bio">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+    </p>
+  </div>
+
+  <!-- ── AYUSH ── -->
+  <div class="member-col rv rv2">
+    <div class="member-name-top">Ayush</div>
+    <div class="member-photo">
+      <!-- SWAP: replace .img-placeholder with <img src="ayush.jpg" alt="Ayush"> -->
+      <div class="img-placeholder">
+        <svg viewBox="0 0 80 60" fill="none">
+          <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+          <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
+          <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
+          <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
+          <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
+        </svg>
+      </div>
+    </div>
+    <p class="member-bio">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+    </p>
+  </div>
+
+  <!-- ── RITVIK ── -->
+  <div class="member-col rv rv3">
+    <div class="member-name-top">Ritvik</div>
+    <div class="member-photo">
+      <!-- SWAP: replace .img-placeholder with <img src="ritvik.jpg" alt="Ritvik"> -->
+      <div class="img-placeholder">
+        <svg viewBox="0 0 80 60" fill="none">
+          <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+          <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
+          <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
+          <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
+          <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
+        </svg>
+      </div>
+    </div>
+    <p class="member-bio">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+    </p>
+  </div>
+
+  <!-- ── ETHAN ── -->
+  <div class="member-col rv rv4">
+    <div class="member-name-top">Ethan</div>
+    <div class="member-photo">
+      <!-- SWAP: replace .img-placeholder with <img src="ethan.jpg" alt="Ethan"> -->
+      <div class="img-placeholder">
+        <svg viewBox="0 0 80 60" fill="none">
+          <rect width="80" height="60" rx="6" fill="#b0d4ee"/>
+          <ellipse cx="56" cy="16" rx="11" ry="9"   fill="white" opacity="0.92"/>
+          <ellipse cx="45" cy="18" rx="8"  ry="6.5" fill="white" opacity="0.80"/>
+          <ellipse cx="0"  cy="60" rx="48" ry="20"  fill="#7ab86a"/>
+          <ellipse cx="80" cy="60" rx="38" ry="17"  fill="#5ea050"/>
+        </svg>
+      </div>
+    </div>
+    <p class="member-bio">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+    </p>
+  </div>
+
+</div><!-- /team-grid -->
+```
+
+  </main>
+
+  <!-- Footer -->
+
+  <footer class="footer footer-dark">
+    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
+  </footer>
+</div><!-- /page-team -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     PAGE 3 — GOING FORWARD
+════════════════════════════════════════════════════════════════ -->
+
+<div id="page-forward" class="page">
+
+  <!-- Texture -->
+
+  <div class="grain"></div>
+
+  <!-- Atmospheric blobs -->
+
+  <div class="fwd-blob fwd-blob-bl"></div>
+  <div class="fwd-blob fwd-blob-tr"></div>
+
+  <!-- Navigation -->
+
+  <nav class="nav">
+    <span class="nav-current-label" onclick="goTo('forward')">Going Forward</span>
+    <ul class="nav-links">
+      <li><button class="nav-btn" onclick="goTo('awards')">Awards</button></li>
+      <li><button class="nav-btn" onclick="goTo('team')">Meet the Team</button></li>
+      <li><button class="nav-btn" onclick="goTo('home')">Home</button></li>
+    </ul>
+  </nav>
+
+  <!-- Main 2×2 grid -->
+
+  <main class="fwd-main">
+
+```
+<!-- Top-left: NEW YEAR, NEW US -->
+<div class="fwd-cell rv rv1">
+  <h2 class="fwd-heading">New Year,<br>New Us</h2>
+  <p class="fwd-sub-label">New Mindset</p>
+</div>
+
+<!-- Top-right: Sponsors body copy -->
+<div class="fwd-cell rv rv2">
+  <p class="fwd-body">
+    How we are getting money and how sponsorships work — including
+    levels of sponsoring — as well as a link if anybody wants to donate.
+    Add your full fundraising strategy, sponsorship tier details, and
+    donation link here.
+  </p>
+</div>
+
+<!-- Bottom-left: FRESH TALENT -->
+<div class="fwd-cell rv rv3">
+  <h2 class="fwd-heading">Fresh<br>Talent</h2>
+  <p class="fwd-body" style="margin-top:10px;">
+    If needed, we could recruit new candidates. Add information about
+    open positions, tryout dates, and how prospective members can apply
+    to join Rising Sunset Robotics.
+  </p>
+</div>
+
+<!-- Bottom-right: placeholder for future content -->
+<div class="fwd-cell rv rv4">
+  <!-- Reserved for upcoming announcements -->
+</div>
+```
+
+  </main>
+
+  <!-- Full-width SPONSORS & DONATIONS heading — left aligned -->
+
+  <div class="fwd-sponsors-row rv rv5">
+    <div class="fwd-sponsors-inner">
+      <h2 class="fwd-sponsors-title">Sponsors &amp;<br>Donations</h2>
+      <p class="fwd-sponsors-body">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+        dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+        mollit anim id est laborum.
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+
+  <footer class="footer footer-blue">
+    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
+  </footer>
+</div><!-- /page-forward -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     PAGE 4 — AWARDS
+════════════════════════════════════════════════════════════════ -->
+
+<div id="page-awards" class="page">
+
+  <!-- Texture -->
+
+  <div class="grain"></div>
+
+  <!-- Atmospheric blobs -->
+
+  <div class="aw-blob aw-blob-bl"></div>
+  <div class="aw-blob aw-blob-tr"></div>
+
+  <!-- Navigation -->
+
+  <nav class="nav">
+    <span class="nav-current-label" onclick="goTo('awards')">Awards</span>
+    <ul class="nav-links">
+      <li><button class="nav-btn" onclick="goTo('team')">Meet the Team</button></li>
+      <li><button class="nav-btn" onclick="goTo('home')">Home</button></li>
+      <li><button class="nav-btn" onclick="goTo('forward')">Going Forward</button></li>
+    </ul>
+  </nav>
+
+  <!-- Main content -->
+
+  <main class="aw-main">
+
+```
+<!-- Left: THINK & TEAMWORK + body -->
+<div class="aw-left rv rv1">
+  <h2 class="aw-hero-title">Think &amp;<br>Teamwork</h2>
+  <p class="aw-body">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+    ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+    aliquip ex ea commodo consequat. Duis aute irure dolor in
+    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+    pariatur. Excepteur sint occaecat cupidatat non proident.
+  </p>
+</div>
+
+<!-- Right: body text + JOURNEY -->
+<div class="aw-right rv rv2">
+  <p class="aw-body-right">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+    ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+    aliquip ex ea commodo consequat. Duis aute irure dolor in
+    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+    pariatur. Excepteur sint occaecat cupidatat non proident.
+  </p>
+  <div class="aw-journey">Journey</div>
+</div>
+```
+
+  </main>
+
+  <!-- Footer -->
+
+  <footer class="footer footer-charcoal">
+    <p>Questions?&nbsp;&nbsp;Contact: +1 (940)-279-3850 or [your email here]</p>
+  </footer>
+</div><!-- /page-awards -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     ROUTER — JavaScript
+════════════════════════════════════════════════════════════════ -->
+
+<script>
+  'use strict';
+
+  // ══════════════════════════════════════════════════════════════
+  //  CONFIGURATION
+  // ══════════════════════════════════════════════════════════════
+
+  /**
+   * All page IDs in order.
+   * Must match the id attributes on .page elements: page-{id}
+   */
+  const PAGE_IDS = ['home', 'team', 'forward', 'awards'];
+
+  /**
+   * Human-readable page titles for <title> tag updates.
+   */
+  const PAGE_TITLES = {
+    home:    'Home — Rising Sunset Robotics',
+    team:    'Meet the Team — Rising Sunset Robotics',
+    forward: 'Going Forward — Rising Sunset Robotics',
+    awards:  'Awards — Rising Sunset Robotics',
+  };
+
+  /**
+   * Keyboard shortcut map: key → page id
+   */
+  const KEY_MAP = {
+    '1': 'home',
+    '2': 'team',
+    '3': 'forward',
+    '4': 'awards',
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  //  STATE
+  // ══════════════════════════════════════════════════════════════
+
+  /** Cache DOM references for all pages once. */
+  const pageEls = {};
+  PAGE_IDS.forEach(function (id) {
+    pageEls[id] = document.getElementById('page-' + id);
+  });
+
+  /** Track the currently active page id. */
+  let currentPage = 'home';
+
+  // ══════════════════════════════════════════════════════════════
+  //  CORE NAVIGATION FUNCTION
+  // ══════════════════════════════════════════════════════════════
+
+  /**
+   * Navigate to the page with the given id.
+   * @param {string} id  — One of the PAGE_IDS values.
+   */
+  function goTo(id) {
+    // Guard: make sure id is valid
+    if (!pageEls[id]) {
+      console.warn('[Router] Unknown page id:', id);
+      return;
+    }
+
+    // ── 1. Hide all pages ──────────────────────────────────────
+    PAGE_IDS.forEach(function (pid) {
+      var el = pageEls[pid];
+      if (el) el.classList.remove('active');
+    });
+
+    // ── 2. Show target page ────────────────────────────────────
+    var target = pageEls[id];
+    target.classList.add('active');
+
+    // ── 3. Re-trigger stagger reveal animations ────────────────
+    target.querySelectorAll('.rv').forEach(function (el) {
+      el.style.animation = 'none';
+      void el.offsetWidth;   // trigger reflow
+      el.style.animation = '';
+    });
+
+    // ── 4. Update document title ───────────────────────────────
+    if (PAGE_TITLES[id]) {
+      document.title = PAGE_TITLES[id];
+    }
+
+    // ── 5. Update URL hash ─────────────────────────────────────
+    history.replaceState({ page: id }, PAGE_TITLES[id] || '', '#' + id);
+
+    // ── 6. Always sync currentPage ─────────────────────────────
+    currentPage = id;
+
+    // ── 7. Move focus to main content (accessibility) ─────────
+    var mainEl = target.querySelector('main') || target;
+    mainEl.setAttribute('tabindex', '-1');
+    mainEl.focus({ preventScroll: true });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  EXPOSE GLOBALLY (used in onclick attributes in HTML)
+  // ══════════════════════════════════════════════════════════════
+
+  window.goTo = goTo;
+
+  // ══════════════════════════════════════════════════════════════
+  //  INITIAL PAGE FROM URL HASH
+  // ══════════════════════════════════════════════════════════════
+
+  /**
+   * On first load, check if the URL contains a hash that maps
+   * to a known page and navigate there immediately.
+   */
+  (function initFromHash() {
+    var hash = window.location.hash.replace('#', '').trim();
+    if (hash && PAGE_IDS.indexOf(hash) !== -1) {
+      // Override the default active class on #page-home
+      pageEls['home'].classList.remove('active');
+      currentPage = hash;
+      pageEls[hash].classList.add('active');
+      document.title = PAGE_TITLES[hash] || document.title;
+    }
+  })();
+
+  // ══════════════════════════════════════════════════════════════
+  //  BROWSER BACK / FORWARD SUPPORT
+  // ══════════════════════════════════════════════════════════════
+
+  window.addEventListener('hashchange', function () {
+    var hash = window.location.hash.replace('#', '').trim();
+    if (hash && PAGE_IDS.indexOf(hash) !== -1 && hash !== currentPage) {
+      goTo(hash);
+    }
+  });
+
+  window.addEventListener('popstate', function (event) {
+    if (event.state && event.state.page) {
+      goTo(event.state.page);
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  KEYBOARD SHORTCUTS
+  // ══════════════════════════════════════════════════════════════
+
+  /**
+   * Press 1-4 to jump between pages.
+   * Also support arrow keys to step forward/back through pages.
+   */
+  document.addEventListener('keydown', function (e) {
+    // Ignore if focus is inside a text input
+    var tag = (document.activeElement || {}).tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    // Number keys 1-4
+    if (KEY_MAP[e.key]) {
+      goTo(KEY_MAP[e.key]);
+      return;
+    }
+
+    // ArrowRight / ArrowLeft to step through pages
+    var idx = PAGE_IDS.indexOf(currentPage);
+    if (e.key === 'ArrowRight' && idx < PAGE_IDS.length - 1) {
+      goTo(PAGE_IDS[idx + 1]);
+    }
+    if (e.key === 'ArrowLeft' && idx > 0) {
+      goTo(PAGE_IDS[idx - 1]);
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  KEYBOARD ACTIVATION FOR ONCLICK ELEMENTS
+  // ══════════════════════════════════════════════════════════════
+
+  /**
+   * Allow Enter/Space to trigger elements that have onclick
+   * but are not native <button> or <a> elements (accessibility).
+   */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      var el = document.activeElement;
+      if (el && el.getAttribute('role') === 'button') {
+        e.preventDefault();
+        el.click();
+      }
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  HELPER: Get current page id
+  // ══════════════════════════════════════════════════════════════
+
+  /** Returns the id string of the currently visible page. */
+  function getCurrentPage() {
+    return currentPage;
+  }
+
+  window.getCurrentPage = getCurrentPage;
+
+  // ══════════════════════════════════════════════════════════════
+  //  HELPER: Go to next / previous page
+  // ══════════════════════════════════════════════════════════════
+
+  /** Navigate one step forward in the page order. */
+  function nextPage() {
+    var idx = PAGE_IDS.indexOf(currentPage);
+    if (idx < PAGE_IDS.length - 1) goTo(PAGE_IDS[idx + 1]);
+  }
+
+  /** Navigate one step backward in the page order. */
+  function prevPage() {
+    var idx = PAGE_IDS.indexOf(currentPage);
+    if (idx > 0) goTo(PAGE_IDS[idx - 1]);
+  }
+
+  window.nextPage = nextPage;
+  window.prevPage = prevPage;
+
+  // ══════════════════════════════════════════════════════════════
+  //  TOUCH SWIPE SUPPORT (mobile navigation)
+  // ══════════════════════════════════════════════════════════════
+
+  (function initSwipe() {
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var SWIPE_THRESHOLD = 60; // px
+
+    document.addEventListener('touchstart', function (e) {
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      var dy = e.changedTouches[0].clientY - touchStartY;
+
+      // Only count as a horizontal swipe if dx dominates
+      if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) {
+          // Swiped left → go forward
+          nextPage();
+        } else {
+          // Swiped right → go back
+          prevPage();
+        }
+      }
+    }, { passive: true });
+  })();
+
+  // ══════════════════════════════════════════════════════════════
+  //  CONSOLE WELCOME MESSAGE
+  // ══════════════════════════════════════════════════════════════
+
+  console.log(
+    '%c Rising Sunset Robotics ',
+    'background:#b5441e; color:#f5e8d8; font-family:monospace; font-size:14px; padding:6px 12px; border-radius:4px;'
+  );
+  console.log(
+    '%c Press 1-4 or use arrow keys to navigate between pages.',
+    'color:#888; font-size:11px;'
+  );
+</script>
+
+<!--
+═══════════════════════════════════════════════════════════════
+  FILE STRUCTURE FOR GITHUB PAGES DEPLOYMENT
+═══════════════════════════════════════════════════════════════
+
+  Recommended folder layout:
+
+    rising-sunset-robotics/
+    ├── index.html           ← this file (all pages in one)
+    ├── photos/
+    │   ├── team-hero.jpg    ← home page hero image
+    │   ├── advik.jpg        ← Advik's profile photo
+    │   ├── ayush.jpg        ← Ayush's profile photo
+    │   ├── ritvik.jpg       ← Ritvik's profile photo
+    │   ├── jaivik.jpg       ← Jaivik's profile photo
+    │   └── ethan.jpg        ← Ethan's profile photo
+    └── README.md            ← optional project description
+
+  Photo tips:
+    • Square or 4:3 ratio crops work best in the member cards
+    • Minimum 600×450px recommended for member photos
+    • Minimum 800×600px for the home hero image
+    • Compress with squoosh.app or tinypng.com before uploading
+      to keep page load fast on mobile
+
+  To add a photo, replace:
+
+    <div class="img-placeholder">...(svg)...</div>
+
+  with:
+
+    <img src="photos/advik.jpg" alt="Advik">
+
+  inside the relevant .member-photo or .home-img-frame div.
+
+═══════════════════════════════════════════════════════════════
+  NAVIGATION KEYBOARD SHORTCUTS
+═══════════════════════════════════════════════════════════════
+
+  Press 1 → Home
+  Press 2 → Meet the Team
+  Press 3 → Going Forward
+  Press 4 → Awards
+
+  Arrow Right → Next page
+  Arrow Left  → Previous page
+
+  On mobile: swipe left/right to navigate between pages.
+
+═══════════════════════════════════════════════════════════════
+  END OF FILE — Rising Sunset Robotics
+═══════════════════════════════════════════════════════════════
+-->
+
 </body>
 </html>
