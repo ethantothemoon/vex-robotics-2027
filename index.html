@@ -135,18 +135,20 @@
       color: var(--cream);
       letter-spacing: -0.01em;
     }
-    .home-right {
-      display: flex; flex-direction: row;
-      align-items: flex-start;
-      gap: clamp(14px,2.5vw,32px);
-    }
-    @media (max-width: 480px) { .home-right { flex-direction: column; } }
 
+    /* Right column: image stacked above bio, full column width */
+    .home-right {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: clamp(12px,2vh,20px);
+    }
+
+    /* Image fills the full right column width */
     .home-img {
-      width: clamp(150px,26vw,300px);
-      height: clamp(120px,20vw,245px);
+      width: 100%;
+      height: clamp(160px,22vw,280px);
       border-radius: 12px; overflow: hidden;
-      flex-shrink: 0;
       box-shadow: 0 14px 44px rgba(0,0,0,0.5);
     }
     .home-img img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -160,29 +162,30 @@
       color: var(--sand);
       margin-bottom: 8px;
     }
+
+    /* Bio text — scrollable with themed scrollbar */
     .home-bio-text {
       font-size: clamp(0.82rem,1.4vw,1rem);
       line-height: 1.72;
       color: var(--dim);
-      max-height: clamp(200px, 45vh, 460px);
+      max-height: clamp(200px, 35vh, 380px);
       overflow-y: auto;
       padding-right: 8px;
       scrollbar-width: thin;
-      scrollbar-color: #c4583a rgba(245,232,216,0.12);
+      scrollbar-color: #c4583a rgba(107,32,16,0.55);
     }
-    .home-bio-text::-webkit-scrollbar {
-      width: 5px;
-    }
+    .home-bio-text::-webkit-scrollbar { width: 7px; }
     .home-bio-text::-webkit-scrollbar-track {
-      background: rgba(245,232,216,0.08);
+      background: rgba(107,32,16,0.55);
       border-radius: 10px;
     }
     .home-bio-text::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #d47c3a 0%, #c4583a 50%, #8b3520 100%);
+      background: linear-gradient(180deg, #f0a060 0%, #d4623e 50%, #8b3520 100%);
       border-radius: 10px;
+      border: 1px solid rgba(245,232,216,0.2);
     }
     .home-bio-text::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, #e08840 0%, #d4623e 50%, #9b3f28 100%);
+      background: linear-gradient(180deg, #f5b070 0%, #e07048 50%, #a04028 100%);
     }
 
     /* ════════════════════════════════════════
@@ -213,7 +216,7 @@
     @media (max-width: 700px) { .team-grid { grid-template-columns: repeat(2,1fr); } }
     @media (max-width: 420px) { .team-grid { grid-template-columns: 1fr; } }
 
-    /* Each card is a flex column — photo is fixed height, bio flows below */
+    /* Each card: flex column so name → photo → bio stack cleanly */
     .member-card { display: flex; flex-direction: column; }
 
     .member-name {
@@ -227,10 +230,10 @@
       flex-shrink: 0;
     }
 
-    /* FIXED HEIGHT photo — never stretches no matter how long the bio is */
+    /* SQUARE photo — 1:1 ratio, identical size on every card */
     .member-photo {
       width: 100%;
-      height: clamp(110px,15vw,210px);
+      aspect-ratio: 1 / 1;
       border-radius: 10px; overflow: hidden;
       margin-bottom: 10px;
       flex-shrink: 0;
@@ -244,16 +247,15 @@
       color: var(--dim);
     }
 
-    /* Team 61434T box — same fixed height as photos so it aligns */
+    /* Team 61434T box — square to match photos, margin aligns with photo row */
     .team-name-box {
       border: 2px solid rgba(245,232,216,0.25);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: clamp(110px,15vw,210px);
+      aspect-ratio: 1 / 1;
       background: rgba(245,232,216,0.04);
-      /* top margin matches the name label height so box aligns with photos */
       margin-top: clamp(2.4rem,4.5vw,4.2rem);
       margin-bottom: 10px;
     }
@@ -317,7 +319,7 @@
     }
     .fwd-body a:hover { opacity: 0.8; }
 
-    /* Sponsors full-width — border separates it from top row */
+    /* Sponsors — full width, no max-width cap */
     .fwd-sponsors {
       padding: clamp(8px,1.5vh,16px) 0 clamp(10px,1.5vh,18px);
       border-top: 1px solid rgba(245,232,216,0.10);
@@ -335,7 +337,7 @@
       font-size: clamp(0.82rem,1.3vw,0.98rem);
       line-height: 1.74;
       color: var(--dim);
-      max-width: 860px;
+      max-width: 100%;
     }
 
     /* ════════════════════════════════════════
@@ -557,7 +559,7 @@
             </svg>
           </div>
         </div>
-        <p class="member-bio">Jaivik is our 2nd driver and 2nd builder, he has patience and accuracy his motto is "quality over quantiy" he shows this on the game by going for high scoring combinations rather than a bunch of small ones, he also truly understands the Engineering Design Process and uses it while building. He currently attends Coppell Middle School West and is in 8th Grade. His hobbies include playing Soccer, which explains his ability to understand that you be patient to attack and score, or you would just fumble under pressure without any precision or accuracy.</p>
+        <p class="member-bio">Jaivik is our 2nd driver and 2nd builder, he has patience and accuracy his motto is "quality over quantity" he shows this on the game by going for high scoring combinations rather than a bunch of small ones, he also truly understands the Engineering Design Process and uses it while building. He currently attends Coppell Middle School West and is in 8th Grade. His hobbies include playing Soccer, which explains his ability to understand that you be patient to attack and score, or you would just fumble under pressure without any precision or accuracy.</p>
       </div>
 
     </div>
@@ -611,7 +613,7 @@
     <!-- Bottom: Sponsors & Donations full width -->
     <div class="fwd-sponsors">
       <h2>Sponsors &amp; Donations</h2>
-      <p>As I stated in a previous section, one of the major problems we had was financing as we are an private, up and coming team without any finacial support from an outside source or organization. This year in V5 the expenses are going to triple and all this money needs to come from somewhere. This is where you guys come into play, if you would like to donate any money to us please click on the link below, but if your a big organization/company and would like to donate money please contact us (contact info at the bottom). If you are asking why should you donate and what are the benefits of donating, here are a few reason why you should. Shoutouts on social media platforms like Youtube, TikTok, and Instagram, tiers of donating (gold, silver, bronze, etc.) that could correlate to special prizes like a free T-Shirt or donor names on the back of T-Shirts, personalized thank you cards and videos for their donations.</p>
+      <p>As I stated in a previous section, one of the major problems we had was financing as we are an private, up and coming team without any financial support from an outside source or organization. This year in V5 the expenses are going to triple and all this money needs to come from somewhere. This is where you guys come into play, if you would like to donate any money to us please click on the link below, but if your a big organization/company and would like to donate money please contact us (contact info at the bottom). If you are asking why should you donate and what are the benefits of donating, here are a few reason why you should. Shoutouts on social media platforms like Youtube, TikTok, and Instagram, tiers of donating (gold, silver, bronze, etc.) that could correlate to special prizes like a free T-Shirt or donor names on the back of T-Shirts, personalized thank you cards and videos for their donations.</p>
     </div>
 
   </div>
